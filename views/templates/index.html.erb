@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+
+<html>
+
+  <head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  	<title>Movie Pile <%= movie_pile['id'] %></title>
+  </head>
+
+  <body>
+    <style>
+      img{
+        height: 200px;
+      }
+    </style>
+    <span id="movie-pile">
+      loading movies
+    </span>
+    <script>
+      var request = new XMLHttpRequest();
+      request.open( "GET", "api/movie-pile/<%= movie_pile['id'] %>", false );
+      request.send( null );
+      var movies = JSON.parse(request.responseText);
+      var imagesHtml = "";
+      for (var i = 0; i < movies.length; i++) {
+        imagesHtml += '<a href="' +  movies[i].url + '"><img src="' +  movies[i].image + '" title="' +  movies[i].title + '" alt="Movie: ' +  movies[i].title + '"/></a>';
+      }
+      if(imagesHtml == ""){
+        imagesHtml = "no movies found";
+      }
+      document.getElementById("movie-pile").innerHTML = imagesHtml;
+    </script>
+
+  </body>
+
+</html>

@@ -35,6 +35,14 @@ get '/api/movie-pile/:movie_pile_id' do
   )
 end
 
+get '/:movie_pile_id' do
+  movie_pile = {
+    'id' =>  params['movie_pile_id']
+  }
+  erb :'templates/index.html',
+      locals: { movie_pile: movie_pile }
+end
+
 get '/swagger.json' do
   request_data = {
     'host' => request.env['HTTP_HOST'],
