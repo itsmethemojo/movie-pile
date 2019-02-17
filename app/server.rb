@@ -2,15 +2,14 @@
 
 require 'json'
 require 'sinatra'
-require 'erb'
-
-include ERB::Util
 
 set :root, File.absolute_path(__dir__ + '/..')
 settings_public = proc { File.join(root, 'public') }
 set :public_folder, settings_public
 settings_model_path = proc { File.join(root, 'src', 'models') + '/' }
+settings_service_path = proc { File.join(root, 'src', 'services') + '/' }
 set :model_path, settings_model_path
+set :service_path, settings_service_path
 set :show_exceptions, !settings.production?
 set :api_data,
     'title' => 'Movie Pile',
@@ -41,10 +40,11 @@ get '/api/movie-pile/:movie_pile_id' do
 end
 
 get '/share' do
-  # TODO: use service to url_encode ?
+  require_relative settings.service_path + 'url_encode_service.rb'
+  url_encoded_data = UrlEncodeService.encode(params['data'])
   data = {
     'id' => '',
-    'api_url' =>  '/api/movie-pile?data=' + url_encode(params['data'])
+    'api_url' =>  '/api/movie-pile?data=' + url_encoded_data
   }
   erb :'templates/index.html',
       locals: { data: data }
