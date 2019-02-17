@@ -18,6 +18,7 @@ set :api_data,
 
 get '/api/movie-pile' do
   require_relative settings.model_path + 'movie_pile_model.rb'
+  cache_control :public, max_age: 2_592_000
   headers \
     'Content-Type' => 'application/json'
   body JSON.generate(
@@ -29,6 +30,7 @@ end
 
 get '/api/movie-pile/:movie_pile_id' do
   require_relative settings.model_path + 'movie_pile_model.rb'
+  cache_control :public, max_age: 2_592_000
   headers \
     'Content-Type' => 'application/json'
   body JSON.generate(
@@ -77,7 +79,7 @@ get '/swagger-ui/index.html' do
 end
 
 get '/' do
-  redirect '/swagger-ui/index.html', 302
+  redirect '/create.html', 302
 end
 
 not_found do

@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "TODO",
+    "description": "This api retrieves movies information from a pile (list) of given movie website urls. <a href='/'>Go here</a> to see it in live action",
     "version": "<%= api['version'] %>",
     "title": "<%= api['title'] %>"
   },
@@ -16,12 +16,44 @@
     "<%= api['scheme'] %>"
   ],
   "paths": {
+    "/movie-pile": {
+      "get": {
+        "tags": [
+          "movie pile"
+        ],
+        "summary": "retrieves movies information about a pile given in the data parameter",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "description": "newline separated list of movie urls",
+            "required": true,
+            "type": "string",
+            "schema": {
+              "example": "https://www.imdb.com/title/tt0468569/"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MovieList"
+            }
+          }
+        }
+      }
+    },
     "/movie-pile/{movie_pile_id}": {
       "get": {
         "tags": [
           "movie pile"
         ],
-        "summary": "TODO",
+        "summary": "retrieves movies information about a pile persistet on pastebin",
         "description": "",
         "produces": [
           "application/json"
@@ -30,9 +62,12 @@
           {
             "name": "movie_pile_id",
             "in": "path",
-            "description": "TODO",
+            "description": "ID of a pastebin",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "schema": {
+              "example": "WfEX9zB8"
+            }
           }
         ],
         "responses": {
@@ -60,19 +95,23 @@
         "name"
       ],
       "properties": {
-        "title": {
-          "type": "string",
-          "example": "TODO"
-        },
         "image": {
           "type": "string",
-          "example": "TODO"
-        }
+          "example": "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY1200_CR90,0,630,1200_AL_.jpg"
+        },
+        "title": {
+          "type": "string",
+          "example": "The Dark Knight (2008)"
+        },
+        "url": {
+          "type": "string",
+          "example": "https://www.imdb.com/title/tt0468569/"
+        },
       }
     }
   },
   "externalDocs": {
     "description": "Github",
-    "url": "https://github.com/itsmethemojo/coolify-all-release-names"
+    "url": "https://github.com/itsmethemojo/movie-pile"
   }
 }

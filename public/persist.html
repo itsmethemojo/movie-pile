@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+
+<html>
+
+  <head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  	<title>persist your pile</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+
+  <body>
+    <section class="navigation">
+      <a href="/create.html">create a new pile</a> | <a href="/swagger-ui/index.html" target="_blank">api</a>
+    </section>
+    <section class="description">
+      Goto <a href="https://pastebin.com/" target="_blank">https://pastebin.com/</a> (opens in new tab) and paste your movie urls in a new paste.
+      Then hit the create button. Now copy the ID (https://pastebin.com/HERE_IS_THE_ID) and fill it here and submit.
+    </section>
+    <section class="movies-data">
+        <input id="pastebin-id" type="text" value="PASTEBIN_ID"/>
+        <input type="button" value="show movie pile" onclick="openMoviePile()"/>
+    </section>
+    <script>
+      function openMoviePile(){
+        location.href="/" + document.getElementById("pastebin-id").value;
+      }
+    </script>
+  </body>
+</html>

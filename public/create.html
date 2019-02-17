@@ -10,16 +10,17 @@
 
   <body>
     <section class="navigation">
-      <a href="">???</a>
+      <a href="/persist.html">persist a pile</a> | <a href="/swagger-ui/index.html" target="_blank">api</a>
+    </section>
+    <section class="description">
+      Put several movie site urls in the textfield (newline separated) and then submit.
+      This works with every major site e.g. <a href="https://www.imdb.com/">imdb</a>,<a href="https://www.themoviedb.org/">themoviedb</a>, <a href="https://www.rottentomatoes.com/m/alita_battle_angel">rottentomatoes</a> and so on
     </section>
     <section class="movies-data">
       <form action="/share" method="GET">
-      <input type="submit" value="show movie pile"><br/>
-      <textarea name="data">https://www.imdb.com/title/tt5311514/
-https://www.imdb.com/title/tt5311514/</textarea>
-
+      <input type="submit" value="show movie pile"/><br/>
+      <textarea name="data"></textarea>
       </form>
     </section>
   </body>
-
 </html>
