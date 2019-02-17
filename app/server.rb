@@ -11,9 +11,10 @@ settings_service_path = proc { File.join(root, 'src', 'services') + '/' }
 set :model_path, settings_model_path
 set :service_path, settings_service_path
 set :show_exceptions, !settings.production?
+# TODO: read the version from a file generated with postinstall hook?
 set :api_data,
     'title' => 'Movie Pile',
-    'version' => '0.1.0'
+    'version' => '0.2.0'
 
 get '/api/movie-pile' do
   require_relative settings.model_path + 'movie_pile_model.rb'
