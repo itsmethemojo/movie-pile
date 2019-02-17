@@ -13,7 +13,7 @@ set :service_path, settings_service_path
 set :show_exceptions, !settings.production?
 set :api_data,
     'title' => 'Movie Pile',
-    'version' => '1.0.0'
+    'version' => '0.1.0'
 
 get '/api/movie-pile' do
   require_relative settings.model_path + 'movie_pile_model.rb'
