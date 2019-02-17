@@ -4,21 +4,20 @@
 
   <head>
   	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  	<title>Movie Pile <%= movie_pile['id'] %></title>
+  	<title>Movie Pile <%= data['id'] %></title>
+    <link rel="stylesheet" href="/style.css">
   </head>
 
   <body>
-    <style>
-      img{
-        height: 200px;
-      }
-    </style>
-    <span id="movie-pile">
+    <section class="navigation">
+      <a href="/create.html">create a new pile</a>
+    </section>
+    <section class="movies" id="movie-pile">
       loading movies
-    </span>
+    </section>
     <script>
       var request = new XMLHttpRequest();
-      request.open( "GET", "api/movie-pile/<%= movie_pile['id'] %>", false );
+      request.open( "GET", "<%= data['api_url'] %>", false );
       request.send( null );
       var movies = JSON.parse(request.responseText);
       var imagesHtml = "";

@@ -2,6 +2,9 @@
 
 require 'json'
 require 'sinatra'
+require 'erb'
+
+include ERB::Util
 
 set :root, File.absolute_path(__dir__ + '/..')
 settings_public = proc { File.join(root, 'public') }
@@ -35,12 +38,23 @@ get '/api/movie-pile/:movie_pile_id' do
   )
 end
 
-get '/:movie_pile_id' do
-  movie_pile = {
-    'id' =>  params['movie_pile_id']
+get '/share' do
+  # TODO: use service to url_encode ?
+  data = {
+    'id' => '',
+    'api_url' =>  '/api/movie-pile?data=' + url_encode(params['data'])
   }
   erb :'templates/index.html',
-      locals: { movie_pile: movie_pile }
+      locals: { data: data }
+end
+
+get '/:movie_pile_id' do
+  data = {
+    'id' => params['movie_pile_id'],
+    'api_url' =>  '/api/movie-pile/' + params['movie_pile_id']
+  }
+  erb :'templates/index.html',
+      locals: { data: data }
 end
 
 get '/swagger.json' do

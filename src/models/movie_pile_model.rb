@@ -8,7 +8,7 @@ class MoviePileModel
   REQUIRED_MOVIE_FIELDS = %w[image title url].freeze
 
   def from_textfield(textfield_data)
-    movie_url_list = get_movie_urls_from_textfield(textfield_data)
+    movie_url_list = get_movie_url_list_from_textfield(textfield_data)
     get_movies(movie_url_list)
   end
 
@@ -19,9 +19,8 @@ class MoviePileModel
 
   private
 
-  def get_movie_url_list_from_textfield(_textfield_data)
-    list = []
-    list
+  def get_movie_url_list_from_textfield(textfield_data)
+    textfield_data.split(/[\r\n]/)
   end
 
   def get_movie_url_list_from_pastebin(pastebin_id)
