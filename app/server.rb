@@ -48,15 +48,6 @@ get '/share' do
       locals: { data: data }
 end
 
-get '/:movie_pile_id' do
-  data = {
-    'id' => params['movie_pile_id'],
-    'api_url' =>  '/api/movie-pile/' + params['movie_pile_id']
-  }
-  erb :'templates/index.html',
-      locals: { data: data }
-end
-
 get '/swagger.json' do
   request_data = {
     'host' => request.env['HTTP_HOST'],
@@ -65,6 +56,15 @@ get '/swagger.json' do
   erb :'templates/swagger.json',
       content_type: :'application/json',
       locals: { api: request_data.merge(settings.api_data) }
+end
+
+get '/:movie_pile_id' do
+  data = {
+    'id' => params['movie_pile_id'],
+    'api_url' =>  '/api/movie-pile/' + params['movie_pile_id']
+  }
+  erb :'templates/index.html',
+      locals: { data: data }
 end
 
 get '/swagger-ui/index.html' do
