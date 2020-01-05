@@ -7,3 +7,4 @@ gem 'rubocop', '~> 0.56.0', require: false
 gem 'test-unit'
 gem 'nokogiri'
 gem 'typhoeus'
+gem 'bundler-audit'
