@@ -16,5 +16,5 @@ jobs:
     - name: Build and test with Rake
       run: |
         gem install bundler
-        bundle install --jobs 4 --retry 3
+        BUNDLE_GEMFILE=buildpack/config/docker/testing/Gemfile bundle install --jobs 4 --retry 3
         buildpack/scripts/checkstyle.sh && buildpack/scripts/unittest.sh && buildpack/scripts/audit.sh
