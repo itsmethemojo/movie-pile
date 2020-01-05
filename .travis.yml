@@ -1,9 +1,0 @@
----
-language: ruby
-os: linux
-install:
-  - "BUNDLE_GEMFILE=buildpack/config/docker/testing/Gemfile bundle install --jobs=3 --retry=3"
-script:
-  - "buildpack/scripts/checkstyle.sh"
-  - "buildpack/scripts/unittest.sh"
-  - "buildpack/scripts/audit.sh"
