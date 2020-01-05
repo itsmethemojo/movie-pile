@@ -1,3 +1,5 @@
+#BUILDPACK_VERSION: 0.7
+
 version: '2'
 
 expansions: 5
@@ -10,25 +12,27 @@ vars:
   BASH_SCRIPT_TEMPLATE: "{{.BUILDPACK_TMP_FOLDER}}/bash/templates/run-task.sh"
   TASK_TARGET_TEMPLATE: "{{.BUILDPACK_TMP_FOLDER}}/taskfiles/templates/target-to-run-task.yml"
   SCRIPTS_FOLDER: "{{.BUILDPACK_FOLDER}}/scripts"
-  BUILDPACK_BRANCH:
+  BUILDPACK_VERSION:
     sh: >-
-      BUILDPACK_BRANCH=master;
-      if [ "$BRANCH" != "" ]; then
-      BUILDPACK_BRANCH=$BRANCH;
+      BUILDPACK_VERSION=$VERSION;
+      if [ "$BUILDPACK_VERSION" == "" ]; then
+        BUILDPACK_VERSION="$(grep -e "^#BUILDPACK_VERSION:" Taskfile.yml 2>/dev/null | grep -o -e '[^:]*$')";
       fi;
-      if [ "$DOWNLOAD_MODE" == "local_copy" ]; then
-      BUILDPACK_BRANCH="- (local copy)";
+      if [ "$BUILDPACK_VERSION" == "" ]; then
+        BUILDPACK_VERSION=$(git ls-remote -t git@github.com:itsmethemojo/buildpack.git | awk '{print $2}' | cut -d '/' -f 3 | cut -d '^' -f 1 | tail -1);
       fi;
-      echo $BUILDPACK_BRANCH;
+      echo $BUILDPACK_VERSION;
   DOWNLOAD_TASK:
     sh: >-
-      if [ "$DOWNLOAD_MODE" == "local_copy" ]; then
-      echo _copy_from_local;
+      if [ "$VERSION" == "_test_local_copy" ]; then
+        echo _copy_from_local;
       else
-      echo _download_from_git;
+        echo _download_from_git;
       fi
   ABSOLUTE_PROJECT_ROOT:
     sh: "pwd"
+  PROJECT_FOLDER_NAME:
+    sh: "echo ${PWD##*/}"
   TASK_SCRIPT_PATH: "{{.SCRIPTS_FOLDER}}/$name.sh"
   TASK_CONFIG_FILE: "{{.CONFIG_FOLDER}}/tasks.env"
   TASK_DEFAULT_CONTAINER: "buildpack-deps"
@@ -39,46 +43,70 @@ vars:
       CONFIG_FILE=buildpack/config/tasks.env
       RETURN_CONTAINER_NAME=buildpack-deps;
       if [ "$(grep -e "^${name}_container=" $CONFIG_FILE 2>/dev/null | grep -o -e '[^=]*$')" != "" ]; then
-      RETURN_CONTAINER_NAME="$(grep -e "^${name}_container=" $CONFIG_FILE 2>/dev/null | grep -o -e '[^=]*$')";
+        RETURN_CONTAINER_NAME="$(grep -e "^${name}_container=" $CONFIG_FILE 2>/dev/null | grep -o -e '[^=]*$')";
       fi;
       if [ "$(grep -e "^${name}_dockerfile=" $CONFIG_FILE 2>/dev/null | grep -o -e '[^=]*$')" != "" ]; then
-      RETURN_CONTAINER_NAME="buildpack-task-${name}";
+        RETURN_CONTAINER_NAME="buildpack-{{.PROJECT_FOLDER_NAME}}-task-${name}";
       fi;
       echo $RETURN_CONTAINER_NAME;
   TASK_DOCKERFILE_PATH:
     sh: >-
       echo "$(grep -e "^${name}_dockerfile=" buildpack/config/tasks.env 2>/dev/null | grep -o -e '[^=]*$')";
+  TESTS_OUTPUT_FILE:
+    sh: echo tests/output-$(date +%s).log;
 
 tasks:
 
   add:
-    deps: [ _check-install-needed ]
+    desc: name=new-task-name task add                       adds a new task that can be later used with task new-task-name
+    deps: [ _check_init_needed ]
     cmds:
-      - task: _create-task-script
-      - task: _update-taskfile
+      - task: _create_task_script
+      - task: _update_taskfile
 
-  buildpack-version:
-    deps: [ _check-install-needed ]
+  buildpack_test:
+    desc: '[VERSION=version] task buildpack_test             runs tests for builpack framework, optional parameter to select a specific version to test'
+    deps: [ _download_buildpack ]
     cmds:
-      - task: _print-version
+      - cmd: >-
+          if [ "$VERSION" == "" ]; then
+            ./tests/run.sh | tee {{.TESTS_OUTPUT_FILE}};
+          else
+            cd buildpack/tmp && ./tests/run.sh "$VERSION" | tee ../../{{.TESTS_OUTPUT_FILE}};
+          fi;
+        ignore_error: true
+        silent: true
+      - task: _set_github_status
 
-  install-buildpack:
+  init:
+    desc: '[VERSION=version] task init                       setup initial config and downloads needed dependencies, optional parameter to select a specific version'
     cmds:
-      - task: _download-buildpack
-      - task: _create-config-files
-      - task: _update-gitignore
-      - task: _update-taskfile
+      - task: _download_buildpack
+      - task: _create_config_files
+      - task: _update_gitignore
+      - task: _update_taskfile
 
-  run:
-    deps: [ _check-install-needed ]
+  upgrade:
+    desc: task upgrade                                      will upgrade your buildpack version to the most current available
     cmds:
-      - task: _print-version
-      - task: _build_task_container
-      - task: _run_task
+      - cmd: >-
+          NEWEST_VERSION=$(git ls-remote -t git@github.com:itsmethemojo/buildpack.git | awk '{print $2}' | cut -d '/' -f 3 | cut -d '^' -f 1 | tail -1);
+          if [ "$NEWEST_VERSION" == "{{.BUILDPACK_VERSION}}" ]; then
+            echo 'buildpack is already on the newest version';
+          else
+            VERSION=$NEWEST_VERSION task init
+          fi
+        silent: true
+
+  version:
+    desc: task version                                     prints the current used version of task
+    deps: [ _check_init_needed ]
+    cmds:
+      - task: _print_version
 
   # private targets
 
-  _add-targets-for-available-tasks-to-taskfile:
+  _add_targets_for_available_tasks_to_taskfile:
     cmds:
       - cmd: >-
           for SCRIPT_FILE in $(ls -1 {{.SCRIPTS_FOLDER}} 2>/dev/null | sed -e 's/\..*$//'); do
@@ -90,16 +118,16 @@ tasks:
     cmds:
       - cmd: >-
           if [ "{{.TASK_DOCKERFILE_PATH}}" != "" ]; then
-          docker build -t {{.TASK_CONTAINER_NAME}} -f "{{.TASK_DOCKERFILE_PATH}}" $(dirname "{{.TASK_DOCKERFILE_PATH}}");
+            docker build -t {{.TASK_CONTAINER_NAME}} -f "{{.TASK_DOCKERFILE_PATH}}" $(dirname "{{.TASK_DOCKERFILE_PATH}}");
           fi;
         silent: true
 
-  _check-install-needed:
+  _check_init_needed:
     cmds:
       - cmd: >-
           if [ ! -f "{{.BASH_SCRIPT_TEMPLATE}}" ]; then
-          echo 'Important files missing. Buildpack seems not be installed. Run task install-buildpack to fix that.';
-          exit 1;
+            echo 'Important files missing. Buildpack seems not be installed. Run "task init" to fix that.';
+            exit 1;
           fi
         silent: true
 
@@ -109,23 +137,24 @@ tasks:
           cp -R {{.BUILDPACK_FOLDER}}/../../../taskfiles {{.BUILDPACK_TMP_FOLDER}};
           cp -R {{.BUILDPACK_FOLDER}}/../../../bash {{.BUILDPACK_TMP_FOLDER}};
           cp {{.BUILDPACK_FOLDER}}/../../../Taskfile.yml {{.BUILDPACK_TMP_FOLDER}}/Taskfile.yml;
-          echo '- (local copy)' > {{.BUILDPACK_TMP_FOLDER}}/BRANCH
         silent: true
 
-  _copy-taskfile-from-download:
+  _copy_taskfile_from_download:
     cmds:
-      - cmd: "cat {{.BUILDPACK_TMP_FOLDER}}/Taskfile.yml > Taskfile.yml"
+      - cmd: >-
+          echo -e "#BUILDPACK_VERSION: {{.BUILDPACK_VERSION}}\n" > Taskfile.yml &&
+          cat {{.BUILDPACK_TMP_FOLDER}}/Taskfile.yml >> Taskfile.yml
         silent: true
 
-  _create-config-files:
+  _create_config_files:
     cmds:
       - cmd: >-
           mkdir -p {{.CONFIG_FOLDER}}/docker;
           touch {{.CONFIG_FOLDER}}/tasks.env
         silent: true
 
-  _create-task-script:
-    deps: [ _has-name-parameter ]
+  _create_task_script:
+    deps: [ _has_name_parameter ]
     cmds:
       - cmd: >-
           mkdir -p {{.SCRIPTS_FOLDER}};
@@ -134,11 +163,10 @@ tasks:
           cat {{.BASH_SCRIPT_TEMPLATE}} >> {{.SCRIPTS_FOLDER}}/{{.name}}.sh
         silent: true
 
-  _download-buildpack:
-    deps: [ _empty-download-folder ]
+  _download_buildpack:
+    deps: [ _empty_download_folder ]
     cmds:
       - task: "{{.DOWNLOAD_TASK}}"
-      - cmd: "echo '{{.BUILDPACK_BRANCH}}' > {{.BUILDPACK_TMP_FOLDER}}/BRANCH"
         silent: true
 
   _download_from_git:
@@ -146,79 +174,142 @@ tasks:
       - cmd: >-
           docker run -v {{.ABSOLUTE_PROJECT_ROOT}}/{{.BUILDPACK_TMP_FOLDER}}:/downloads buildpack-deps
           bash -c "
-          git clone -b {{.BUILDPACK_BRANCH}} --depth 1 {{.BUILDPACK_REPOSITORY}} /downloads &> /dev/null &&
-          git ls-remote /downloads | grep 'refs/tags' | sort -r | grep -o '[^\\/]*$' | head -1 > /downloads/VERSION &&
+          git clone -b {{.BUILDPACK_VERSION}} --depth 1 {{.BUILDPACK_REPOSITORY}} /downloads &> /dev/null &&
+          cd /downloads &&
+          git log -1 --pretty=format:%H > REVISION &&
+          cd .. &&
           rm -r /downloads/.git &&
           chmod -R 777 /downloads
           "
         silent: true
 
-  _empty-download-folder:
+  _empty_download_folder:
     cmds:
       - cmd: >-
           rm -rf {{.BUILDPACK_TMP_FOLDER}};
           mkdir -p {{.BUILDPACK_TMP_FOLDER}}
         silent: true
 
-  _has-name-parameter:
+  _has_name_parameter:
     cmds:
       - cmd: >-
           if [ "$name" == "" ]; then
-          echo 'missing Parameter name! Usage: name="my-task" task add';
-          exit 1;
+            echo 'missing Parameter name! Usage: name="my-task" task add';
+            exit 1;
           fi
         silent: true
 
-  _print-version:
+  _print_version:
     cmds:
       - cmd: >-
-          VERSION="$(cat {{.BUILDPACK_TMP_FOLDER}}/VERSION 2>/dev/null)";
-          if [ "$VERSION" == "" ]; then
-          VERSION=-;
-          fi;
-          echo version: $VERSION;
-          echo branch: $(cat {{.BUILDPACK_TMP_FOLDER}}/BRANCH);
+          echo Buildpack Version: {{.BUILDPACK_VERSION}};
         silent: true
+
+  _run:
+    deps: [ _check_init_needed ]
+    cmds:
+      - task: _start_watch_run
+      - task: _print_version
+      - task: _build_task_container
+      - task: _run_task
+      - task: _stop_watch_run
 
   _run_task:
     cmds:
       - cmd: >-
           if [ -f "/.dockerenv" ]; then
-          bash {{.TASK_DIR_IN_CONTAINER}}/{{.TASK_SCRIPT_PATH}};
+            bash {{.TASK_DIR_IN_CONTAINER}}/{{.TASK_SCRIPT_PATH}};
           else
-          docker run {{.TASK_CONTAINER_MOUNT_PARAMETERS}} -w {{.TASK_DIR_IN_CONTAINER}} {{.TASK_CONTAINER_NAME}} bash {{.TASK_SCRIPT_PATH}};
+            docker run {{.TASK_CONTAINER_MOUNT_PARAMETERS}} -w {{.TASK_DIR_IN_CONTAINER}} {{.TASK_CONTAINER_NAME}} bash {{.TASK_SCRIPT_PATH}};
           fi;
         silent: true
 
-  _update-gitignore:
+  _set_github_status:
+    cmds:
+      - cmd: >-
+          if [ "$VERSION" != "" ] && [ "$GITHUB_STATUS_TOKEN" != "" ]; then
+            NUMBER_OF_TESTS=$(head -1 {{.TESTS_OUTPUT_FILE}} | cut -c 4-);
+            NUMBER_OF_FAILED_TESTS=$(cat {{.TESTS_OUTPUT_FILE}} | grep -e '^not ok .*$' | wc -l);
+            STATE=failure;
+            if [ "$NUMBER_OF_FAILED_TESTS" == "0" ]; then
+              STATE=success;
+            fi;
+            if [ "$TEST_SYSTEM" == "" ]; then
+              TEST_SYSTEM=$(cat /etc/os-release | grep PRETTY_NAME | grep -o -e '[^=]*$' | tr '"' ' ');
+            fi;
+            if [ "$TEST_SYSTEM" == "" ]; then
+              echo "Can not determine test system. Please provide it (e.g. Windows10, Debian, ...) via TEST_SYSTEM parameter"
+              exit 1;
+            fi;
+            JSON_DATA="{\"context\": \"$TEST_SYSTEM\",\"state\": \"$STATE\",\"description\": \"$NUMBER_OF_TESTS test(s) run, $NUMBER_OF_FAILED_TESTS test(s) failed\"}";
+            API_ENDPOINT=https://api.github.com/repos/itsmethemojo/buildpack/statuses/$(cat {{.BUILDPACK_TMP_FOLDER}}/REVISION);
+            echo "updating status on github";
+            curl -H "Authorization: token $GITHUB_STATUS_TOKEN" --data "$JSON_DATA" -X POST $API_ENDPOINT &> /dev/null
+          fi;
+        silent: true
+
+  _start_watch_run:
+    cmds:
+      - cmd: >-
+          echo $(date +%s) > {{.BUILDPACK_TMP_FOLDER}}/start-watch-$name
+        silent: true
+
+  _stop_watch_run:
+    cmds:
+      - cmd: >-
+          echo -e "\nDuration: $(( $(date +%s) - $( cat {{.BUILDPACK_TMP_FOLDER}}/start-watch-$name ) ))s" &&
+          rm {{.BUILDPACK_TMP_FOLDER}}/start-watch-$name
+        silent: true
+
+  _update_gitignore:
     cmds:
       - cmd: >-
           if [ ! -f .gitignore ]; then
-          echo "/{{.BUILDPACK_TMP_FOLDER}}"/ > .gitignore;
+            echo "/{{.BUILDPACK_TMP_FOLDER}}"/ > .gitignore;
           fi;
           if [ "$(grep "/{{.BUILDPACK_TMP_FOLDER}}/" .gitignore | wc -l)" = "0" ]; then
-          echo "/{{.BUILDPACK_TMP_FOLDER}}/" >> .gitignore;
+            echo "/{{.BUILDPACK_TMP_FOLDER}}/" >> .gitignore;
           fi
         silent: true
 
-  _update-taskfile:
+  _update_taskfile:
     cmds:
-      - task: _copy-taskfile-from-download
-      - task: _add-targets-for-available-tasks-to-taskfile
-      - task: _print-version
+      - task: _copy_taskfile_from_download
+      - task: _add_targets_for_available_tasks_to_taskfile
+      - task: _print_version
+
+  audit:
+    desc: task audit
+    cmds:
+      - cmd: name="audit" task _run
+        silent: true
+
   checkstyle:
+    desc: task checkstyle
     cmds:
-      - cmd: name="checkstyle" task run
+      - cmd: name="checkstyle" task _run
         silent: true
+
   fix-checkstyle:
+    desc: task fix-checkstyle
     cmds:
-      - cmd: name="fix-checkstyle" task run
+      - cmd: name="fix-checkstyle" task _run
         silent: true
+
+  package-update:
+    desc: task package-update
+    cmds:
+      - cmd: name="package-update" task _run
+        silent: true
+
   server:
+    desc: task server
     cmds:
-      - cmd: name="server" task run
+      - cmd: name="server" task _run
         silent: true
+
   unittest:
+    desc: task unittest
     cmds:
-      - cmd: name="unittest" task run
+      - cmd: name="unittest" task _run
         silent: true

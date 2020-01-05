@@ -6,3 +6,4 @@ install:
 script:
   - "buildpack/scripts/checkstyle.sh"
   - "buildpack/scripts/unittest.sh"
+  - "buildpack/scripts/audit.sh"
