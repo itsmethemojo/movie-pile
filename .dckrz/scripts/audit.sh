@@ -4,6 +4,6 @@ set -e
 
 bundle-audit check --update
 
-cd buildpack/config/docker/testing/
+cd .dckrz/config/docker/testing/
 
 bundle-audit check --update
