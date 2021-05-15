@@ -1,6 +1,7 @@
 # movie-pile
 
-[![Build Status](https://travis-ci.org/itsmethemojo/movie-pile.svg?branch=master)](https://travis-ci.org/itsmethemojo/movie-pile)
+
+![Build Status](https://github.com/itsmethemojo/movie-pile/actions/workflows/tests.yml/badge.svg)
 [![Heroku](https://heroku-badge.herokuapp.com/?app=movie-pile&style=flat&root=swagger.json)](https://movie-pile.herokuapp.com/)
 
 ## installation
@@ -9,8 +10,8 @@
 
 ## start server local
 
-`./local-server.sh`
+`docker-compose up -d`
 
 ## run tests local
 
-`task checkstyle unittest`
+`task checkstyle unittest audit`
