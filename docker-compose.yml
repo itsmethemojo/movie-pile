@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: localpw
+  app:
+    build: .
+    command: "ruby app/server.rb -p 3000 -o 0.0.0.0 -e development"
+    ports:
+      - "3000:3000"
+    links:
+      - "database:database"
+    depends_on:
+      - database
+    volumes:
+    - ".:/app"
+    working_dir: /app
