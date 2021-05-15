@@ -1,20 +1,23 @@
 name: Ruby
 
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: "0 11 7 * *"
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Ruby 2.6
+    - name: Set up Ruby 2.7
       uses: actions/setup-ruby@v1
       with:
-        ruby-version: 2.6.x
+        ruby-version: 2.7.x
     - name: Build and test with Rake
       run: |
         gem install bundler
         BUNDLE_GEMFILE=buildpack/config/docker/testing/Gemfile bundle install --jobs 4 --retry 3
-        buildpack/scripts/checkstyle.sh && buildpack/scripts/unittest.sh && buildpack/scripts/audit.sh
+        buildpack/scripts/audit.sh && buildpack/scripts/checkstyle.sh && buildpack/scripts/unittest.sh
