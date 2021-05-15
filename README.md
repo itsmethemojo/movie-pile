@@ -5,7 +5,7 @@
 
 ## installation
 
-[install buildpack](https://github.com/itsmethemojo/buildpack/blob/master/README.md)
+[install buildpack](https://github.com/itsmethemojo/dot-dockerize)
 
 ## start server local
 
