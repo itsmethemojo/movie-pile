@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+
+<html>
+
+  <head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  	<title>Start a Movie Pile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <section>
+      <p>
+        This page lets you easily create and manage lists of movies.
+      </p>
+    </section>
+    <section>
+      <p>
+        <input type="button" value="lets start" onclick="start()"/>
+      </p>
+    </section>
+    <section id="existing-movie-piles">
+    </section>
+    <script>
+
+      function init(){
+        movie_piles = [];
+        document.cookie.split(';').forEach(cookie => {
+           if(cookie.trim().startsWith("movie_piles=")){
+             movie_piles=JSON.parse(cookie.split("=")[1]);
+           }
+        });
+        if(movie_piles.length > 0){
+          html = '<h2> your piles</h2>';
+          movie_piles.forEach(movie_pile_url => {
+             html += '<p><a href="' + movie_pile_url + '">' + movie_pile_url + '</a></p>'
+          });
+          document.getElementById("existing-movie-piles").innerHTML = html;
+        }
+      }
+
+      init();
+
+      function start(){
+        var request = new XMLHttpRequest();
+        request.open( "POST", "/api/v2/movie-pile/create", false );
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader('Accept', 'application/json');
+        request.send(
+          JSON.stringify(
+            {
+              name: "Movie Pile " + new Date().toISOString().slice(0, 10),
+              movie_list: []
+            }
+          )
+        );
+        var movie_pile = JSON.parse(request.responseText);
+        window.location.href= '/v2/' + movie_pile['id'] + '/edit/' + movie_pile['secret'];
+      }
+
+
+    </script>
+  </body>
+</html>

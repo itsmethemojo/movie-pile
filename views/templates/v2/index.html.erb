@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+
+<html>
+
+  <head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  	<title>Movie Pile <%= data['id'] %></title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body>
+    <section class="name">
+      <h1 class="movie-pile-name" id="movie-pile-name"></h1>
+    </section>
+    <section class="movies" id="movie-pile">
+      loading movies
+    </section>
+    <script>
+      var request = new XMLHttpRequest();
+      request.open( "GET", "<%= data['api_url'] %>", false );
+      request.send( null );
+      var movie_pile = JSON.parse(request.responseText);
+      var imagesHtml = "";
+      name =
+      movies = movie_pile['movie_list'];
+      for (var i = 0; i < movies.length; i++) {
+        imagesHtml += '<a href="' +  movies[i].url + '"><img src="' +  movies[i].image + '" title="' +  movies[i].title + '" alt="Movie: ' +  movies[i].title + '"/></a>';
+      }
+      if(imagesHtml == ""){
+        imagesHtml = "no movies found";
+      }
+      document.getElementById("movie-pile-name").innerHTML = movie_pile['name'];
+      document.getElementById("movie-pile").innerHTML = imagesHtml;
+    </script>
+
+  </body>
+
+</html>

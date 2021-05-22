@@ -10,7 +10,6 @@ section.movies img{
   padding-bottom: 10px;
 }
 
-section.movies-data textarea{
+section input[type=text]{
   width: 100%;
-  height: 400px;
 }

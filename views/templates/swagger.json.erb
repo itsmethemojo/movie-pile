@@ -79,9 +79,196 @@
           }
         }
       }
+    },
+    "/v2/movie-pile/create": {
+      "post": {
+        "tags": [
+          "movie pile"
+        ],
+        "summary": "creates a movie pile in the database",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "description": "Secret in Database, needed to edit the movie pile",
+            "required": true,
+            "type": "object",
+            "schema": {
+              "$ref": "#/definitions/MoviePilePostBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MoviePileCreateResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v2/movie-pile/{movie_pile_id}": {
+      "get": {
+        "tags": [
+          "movie pile"
+        ],
+        "summary": "retrieves movie pile information persistet in the database",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "movie_pile_id",
+            "in": "path",
+            "description": "ID in Database",
+            "required": true,
+            "type": "string",
+            "schema": {
+              "example": "G2NV9mPkym"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MoviePileResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "movie pile"
+        ],
+        "summary": "modifies movie pile information persistet in the database",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "movie_pile_id",
+            "in": "path",
+            "description": "ID in Database",
+            "required": true,
+            "type": "string",
+            "schema": {
+              "example": "G2NV9mPkym"
+            }
+          },
+          {
+            "name": "TOKEN",
+            "in": "header",
+            "description": "Secret Token to edit this movie pile",
+            "required": true,
+            "type": "string",
+            "schema": {
+              "example": "vh7PJmXrDLmGr0iryy7SEsyvVPj3NJ"
+            }
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "description": "Secret in Database, needed to edit the movie pile",
+            "required": true,
+            "type": "object",
+            "schema": {
+              "$ref": "#/definitions/MoviePilePostBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MoviePileResponse"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "MoviePilePostBody": {
+      "type": "object",
+      "required": [
+        "name",
+        "movie_list"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "itsmethemojos movie pile"
+        },
+        "movie_list": {
+          "type": "array",
+          "example": [
+            "https://www.imdb.com/title/tt0468569/",
+            "https://www.imdb.com/title/tt0468569/"
+          ]
+        }
+      }
+    },
+    "MoviePileCreateResponse": {
+      "type": "object",
+      "required": [
+        "id",
+        "secret",
+        "name",
+        "movies"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "G2NV9mPkym"
+        },
+        "secret": {
+          "type": "string",
+          "example": "vh7PJmXrDLmGr0iryy7SEsyvVPj3NJ"
+        },
+        "name": {
+          "type": "string",
+          "example": "itsmethemojos movie pile"
+        },
+        "movies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Movie"
+          }
+        }
+      }
+    },
+    "MoviePileResponse": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "movies"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "G2NV9mPkym"
+        },
+        "name": {
+          "type": "string",
+          "example": "itsmethemojos movie pile"
+        },
+        "movies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Movie"
+          }
+        }
+      }
+    },
     "MovieList": {
       "type": "array",
       "items": {
@@ -91,8 +278,9 @@
     "Movie": {
       "type": "object",
       "required": [
-        "id",
-        "name"
+        "image",
+        "title",
+        "url"
       ],
       "properties": {
         "image": {
@@ -106,7 +294,7 @@
         "url": {
           "type": "string",
           "example": "https://www.imdb.com/title/tt0468569/"
-        },
+        }
       }
     }
   },
