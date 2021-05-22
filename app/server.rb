@@ -2,6 +2,12 @@
 
 require 'json'
 require 'sinatra'
+require 'sinatra/activerecord'
+require_relative '../src/errors/unauthorized_error.rb'
+
+ActiveRecord::Base.establish_connection
+require_relative '../src/orm/movie_pile_table.rb'
+MoviePileTable.migrate(:up)
 
 set :root, File.absolute_path(__dir__ + '/..')
 settings_public = proc { File.join(root, 'public') }
@@ -14,7 +20,16 @@ set :show_exceptions, !settings.production?
 # TODO: read the version from a file generated with postinstall hook?
 set :api_data,
     'title' => 'Movie Pile',
-    'version' => '0.2.0'
+    'version' => '1.0.0'
+
+before do
+  begin
+    request.body.rewind
+    @request_payload = JSON.parse(request.body.read, symbolize_names: true)
+  rescue JSON::ParserError
+    @request_payload = {}
+  end
+end
 
 get '/api/movie-pile' do
   require_relative settings.model_path + 'movie_pile_model.rb'
@@ -38,6 +53,50 @@ get '/api/movie-pile/:movie_pile_id' do
       params['movie_pile_id']
     )
   )
+end
+
+post '/api/v2/movie-pile/create' do
+  cache_control :public, max_age: 0
+  require_relative settings.model_path + 'movie_pile_orm_model.rb'
+  headers \
+    'Content-Type' => 'application/json'
+  body JSON.generate(
+    MoviePileOrmModel.new.create(@request_payload)
+  )
+end
+
+get '/api/v2/movie-pile/:movie_pile_id' do
+  cache_control :public, max_age: 0
+  require_relative settings.model_path + 'movie_pile_orm_model.rb'
+  headers \
+    'Content-Type' => 'application/json'
+  body JSON.generate(
+    MoviePileOrmModel.new.get(
+      params['movie_pile_id']
+    )
+  )
+end
+
+post '/api/v2/movie-pile/:movie_pile_id' do
+  cache_control :public, max_age: 0
+  secret = request.env['HTTP_TOKEN']
+  require_relative settings.model_path + 'movie_pile_orm_model.rb'
+  begin
+    return_data = MoviePileOrmModel.new.edit(
+      params['movie_pile_id'],
+      secret,
+      @request_payload
+    )
+  rescue UnauthorizedError
+    halt(
+      401,
+      { 'Content-Type' => 'application/json' },
+      '{"message": "not authorized"}'
+    )
+  end
+  headers \
+    'Content-Type' => 'application/json'
+  body JSON.generate(return_data)
 end
 
 get '/share' do
@@ -70,6 +129,25 @@ get '/:movie_pile_id' do
       locals: { data: data }
 end
 
+get '/v2/:movie_pile_id' do
+  data = {
+    'id' => params['movie_pile_id'],
+    'api_url' =>  '/api/v2/movie-pile/' + params['movie_pile_id']
+  }
+  erb :'templates/v2/index.html',
+      locals: { data: data }
+end
+
+get '/v2/:movie_pile_id/edit/:secret' do
+  data = {
+    'id' => params['movie_pile_id'],
+    'secret' => params['secret'],
+    'api_url' => '/api/v2/movie-pile/' + params['movie_pile_id']
+  }
+  erb :'templates/v2/edit.html',
+      locals: { data: data }
+end
+
 get '/swagger-ui/index.html' do
   request_data = {
     'host' => request.env['HTTP_HOST'],
@@ -80,7 +158,7 @@ get '/swagger-ui/index.html' do
 end
 
 get '/' do
-  redirect '/create.html', 302
+  redirect '/index.html', 302
 end
 
 not_found do

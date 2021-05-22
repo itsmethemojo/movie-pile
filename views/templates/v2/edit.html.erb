@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+
+<html>
+
+  <head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  	<title>edit Movie Pile <%= data['id'] %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <section>
+      <p>
+        Put several movie site urls in the textfield (newline separated) and then submit.
+        This works with every major site e.g. <a href="https://www.imdb.com/">imdb</a>,<a href="https://www.themoviedb.org/">themoviedb</a>, <a href="https://www.rottentomatoes.com/m/alita_battle_angel">rottentomatoes</a> and so on
+      </p>
+    </section>
+    <section>
+      <p>
+        <input type="button" value="save" onclick="saveMovie()"/>
+      </p>
+    </section>
+    <section>
+      <p>
+        name: <input type="text" value="" id="movie-pile-name"/>
+        <input type="hidden" value="<%= data['secret'] %>" id="movie-pile-secret"/>
+      </p>
+    </section>
+    <section class="movie-pile" id="movie-pile-section">
+
+    </section>
+    <section class="movie-pile-add" id="movie-pile-add-section">
+        <p>
+          <input type="button" value="add" onclick="addMovie()"/>
+        </p>
+    </section>
+    <script>
+
+      function addPileToCookies(){
+        movie_piles = [];
+        document.cookie.split(';').forEach(cookie => {
+           if(cookie.trim().startsWith("movie_piles=")){
+             movie_piles=JSON.parse(cookie.split("=")[1]);
+           }
+        });
+        movie_piles.push(window.location.href);
+        cookie_data = JSON.stringify(movie_piles.filter((v, i, a) => a.indexOf(v) === i));
+        document.cookie = "movie_piles = " + cookie_data + ";expires=Do, 31 Dec 2037 23:59:59 GMT; path=/; secure";
+      }
+
+      function init(){
+        var request = new XMLHttpRequest();
+        request.open( "GET", "<%= data['api_url'] %>", false );
+        request.send( null );
+        var movie_pile = JSON.parse(request.responseText);
+        var moviesInputHtml = "";
+        movies = movie_pile['movie_list'];
+        for (var i = 0; i < movies.length; i++) {
+          moviesInputHtml += '<p><input type="text" value="' + movies[i].url + '"/></p>';
+        }
+        document.getElementById("movie-pile-section").innerHTML = moviesInputHtml;
+        document.getElementById("movie-pile-name").value = movie_pile['name'];
+        addPileToCookies();
+      }
+
+      init();
+      function addMovie(){
+        document.getElementById("movie-pile-section").innerHTML += '<p><input type="text" value=""/></p>';
+      }
+
+      function saveMovie(){
+        name = document.getElementById("movie-pile-name").value;
+        secret = document.getElementById("movie-pile-secret").value;
+        movie_list = [];
+        document.querySelectorAll("section#movie-pile-section p input").forEach(input => {
+          movie_entry = input.value.trim();
+          if(movie_entry !== "") {
+            movie_list.push(movie_entry);
+          }
+        });
+        var request = new XMLHttpRequest();
+        request.open( "POST", "<%= data['api_url'] %>", false );
+        request.setRequestHeader('TOKEN', secret);
+        request.send(
+          JSON.stringify(
+            {
+              name: name,
+              movie_list: movie_list
+            }
+          )
+        );
+      }
+    </script>
+  </body>
+</html>
