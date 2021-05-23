@@ -6,7 +6,8 @@
   	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   	<title>edit Movie Pile <%= data['id'] %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/style.css">
+    <link href="/auto.css" type="text/css" rel="stylesheet">
+    <link href="/custom.css" type="text/css" rel="stylesheet">
   </head>
   <body>
     <section>
@@ -17,22 +18,38 @@
     </section>
     <section>
       <p>
-        <input type="button" value="save" onclick="saveMovie()"/>
+        <a type="button" href="/"> Back to piles</a>
       </p>
     </section>
     <section>
       <p>
-        name: <input type="text" value="" id="movie-pile-name"/>
+        Name
+        <input type="text" value="" id="movie-pile-name"/>
         <input type="hidden" value="<%= data['secret'] %>" id="movie-pile-secret"/>
+      </p>
+      <p>
+        Share Url: 
+        <code id="movie-pile-share-url">
+          <%= url("/v2/#{data['id']}") %>
+        </code>
+      </p>
+      <p>
+        <button type="button" id="clipboard-button">
+          Copy to clipboard
+          <span id="clipboard-button-feedback"></span>
+        </button>
       </p>
     </section>
     <section class="movie-pile" id="movie-pile-section">
-
+      <p><input type="text" value=""/></p>
     </section>
     <section class="movie-pile-add" id="movie-pile-add-section">
         <p>
-          <input type="button" value="add" onclick="addMovie()"/>
+          <input type="button" value="Add" onclick="addMovie()"/>
         </p>
+    </section>
+        <input type="button" value="Save" onclick="saveMovie()"/>
+        <span id="saving-feedback"></span>
     </section>
     <script>
 
@@ -48,7 +65,22 @@
         document.cookie = "movie_piles = " + cookie_data + ";expires=Do, 31 Dec 2037 23:59:59 GMT; path=/; secure";
       }
 
+      function initClipboardButton() {
+        var clipboard_button = document.getElementById("clipboard-button")
+        var clipboard_button_feedback = document.getElementById("clipboard-button-feedback")
+        clipboard_button.addEventListener('click', () => {
+          var clipboard = navigator.clipboard || window.clipboard
+          var share_url = document.getElementById("movie-pile-share-url").textContent
+
+          clipboard.writeText(share_url)
+            .then(() => { clipboard_button_feedback.textContent = '✔' })
+            .catch(() => { clipboard_button_feedback.textContent = '❌' })
+            .then(() => setTimeout(() => { clipboard_button_feedback.textContent = '' }, 1500))
+        })
+      }
+
       function init(){
+        initClipboardButton();
         var request = new XMLHttpRequest();
         request.open( "GET", "<%= data['api_url'] %>", false );
         request.send( null );
@@ -65,7 +97,12 @@
 
       init();
       function addMovie(){
-        document.getElementById("movie-pile-section").innerHTML += '<p><input type="text" value=""/></p>';
+        var nextUrlInput = document.createElement("input");
+        nextUrlInput.type = "text";
+        nextUrlInput.value = "";
+        var wrapper = document.createElement("p");
+        wrapper.appendChild(nextUrlInput);
+        document.getElementById("movie-pile-section").appendChild(wrapper);
       }
 
       function saveMovie(){
@@ -89,6 +126,9 @@
             }
           )
         );
+        var feedback = document.getElementById("saving-feedback");
+        feedback.textContent = "✔ Saved successfully";
+        setTimeout(() => { feedback.textContent = '' }, 1500);
       }
     </script>
   </body>
