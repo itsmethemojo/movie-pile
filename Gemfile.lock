@@ -15,13 +15,14 @@ GEM
     concurrent-ruby (1.1.8)
     ethon (0.14.0)
       ffi (>= 1.15.0)
-    ffi (1.15.0)
+    ffi (1.15.1)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     minitest (5.14.4)
+    multi_json (1.15.0)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    nokogiri (1.11.4-x86_64-linux)
+    nokogiri (1.11.5-x86_64-linux)
       racc (~> 1.4)
     pg (1.2.3)
     racc (1.5.2)
@@ -37,6 +38,12 @@ GEM
     sinatra-activerecord (2.0.23)
       activerecord (>= 4.1)
       sinatra (>= 1.0)
+    sinatra-contrib (2.1.0)
+      multi_json
+      mustermann (~> 1.0)
+      rack-protection (= 2.1.0)
+      sinatra (= 2.1.0)
+      tilt (~> 2.0)
     tilt (2.0.10)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
@@ -52,6 +59,7 @@ DEPENDENCIES
   pg
   sinatra
   sinatra-activerecord
+  sinatra-contrib
   typhoeus
 
 BUNDLED WITH

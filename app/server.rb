@@ -3,6 +3,7 @@
 require 'json'
 require 'sinatra'
 require 'sinatra/activerecord'
+require 'sinatra/reloader' if development?
 require_relative '../src/errors/unauthorized_error.rb'
 
 ActiveRecord::Base.establish_connection

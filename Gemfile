@@ -8,3 +8,4 @@ gem 'nokogiri'
 gem 'typhoeus'
 gem 'sinatra-activerecord'
 gem 'pg'
+gem 'sinatra-contrib', :group => :development
