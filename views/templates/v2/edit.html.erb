@@ -6,8 +6,8 @@
   	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   	<title>edit Movie Pile <%= data['id'] %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/auto.css?d=20210524" type="text/css" rel="stylesheet">
-    <link href="/custom.css?d=20210524" type="text/css" rel="stylesheet">
+    <link href="/auto.css?d=20210526" type="text/css" rel="stylesheet">
+    <link href="/custom.css?d=20210526" type="text/css" rel="stylesheet">
   </head>
   <body>
     <section>
@@ -28,7 +28,7 @@
         <input type="hidden" value="<%= data['secret'] %>" id="movie-pile-secret"/>
       </p>
       <p>
-        Share Url: 
+        Share Url:
         <code id="movie-pile-share-url">
           <%= url("/v2/#{data['id']}") %>
         </code>
@@ -48,21 +48,45 @@
           <input type="button" value="Add" onclick="addMovie()"/>
         </p>
     </section>
+    <section>
+      <p>
         <input type="button" value="Save" onclick="saveMovie()"/>
         <span id="saving-feedback"></span>
+      </p>
     </section>
     <script>
 
-      function addPileToCookies(){
+      function addPileToCookies(url, name){
+        movie_piles_data = {};
+        document.cookie.split(';').forEach(cookie => {
+          if(cookie.trim().startsWith("movie_piles_data=")){
+            movie_piles_data=JSON.parse(cookie.split("=")[1]);
+          }
+        });
+        //TODO this conversion can be deleted on later versions
+        // BEGIN CONVERSION
         movie_piles = [];
         document.cookie.split(';').forEach(cookie => {
-           if(cookie.trim().startsWith("movie_piles=")){
-             movie_piles=JSON.parse(cookie.split("=")[1]);
-           }
+          if(cookie.trim().startsWith("movie_piles=")){
+            movie_piles=JSON.parse(cookie.split("=")[1]);
+          }
         });
-        movie_piles.push(window.location.href);
-        cookie_data = JSON.stringify(movie_piles.filter((v, i, a) => a.indexOf(v) === i));
-        document.cookie = "movie_piles = " + cookie_data + ";expires=Do, 31 Dec 2037 23:59:59 GMT; path=/; secure";
+        if(Array.isArray(movie_piles) && Object.entries(movie_piles_data).length === 0){
+          movie_piles.forEach(movie_pile => {
+            movie_piles_data[movie_pile] = {
+              name: "click me to retrieve title"
+            };
+          });
+        }
+        // kill old cookies after conversion
+        document.cookie = "movie_piles = [];expires=Do, 20 Mai 2021 23:59:59 GMT; path=/; secure";
+        // END CONVERSION
+        movie_piles_data[url] = {
+          name: name
+        };
+        cookie_data = JSON.stringify(movie_piles_data);
+
+        document.cookie = "movie_piles_data = " + cookie_data + ";expires=Do, 31 Dec 2037 23:59:59 GMT; path=/; secure";
       }
 
       function initClipboardButton() {
@@ -88,11 +112,11 @@
         var moviesInputHtml = "";
         movies = movie_pile['movie_list'];
         for (var i = 0; i < movies.length; i++) {
-          moviesInputHtml += '<p><input type="text" value="' + movies[i].url + '"/></p>';
+          moviesInputHtml += '<p><span>' + movies[i].title + '</span><br/><input type="text" value="' + movies[i].url + '"/></p>';
         }
         document.getElementById("movie-pile-section").innerHTML = moviesInputHtml;
         document.getElementById("movie-pile-name").value = movie_pile['name'];
-        addPileToCookies();
+        addPileToCookies(window.location.href, movie_pile['name']);
       }
 
       init();
