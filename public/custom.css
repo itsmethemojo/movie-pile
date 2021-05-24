@@ -13,3 +13,7 @@ section.movies img{
 section input[type=text]{
   width: 100%;
 }
+
+section p span{
+  font-size: small
+}

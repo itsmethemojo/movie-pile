@@ -6,8 +6,8 @@
   	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   	<title>Start a Movie Pile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/auto.css?d=20210524" type="text/css" rel="stylesheet">
-    <link href="/custom.css?d=20210524" type="text/css" rel="stylesheet">
+    <link href="/auto.css?d=20210526" type="text/css" rel="stylesheet">
+    <link href="/custom.css?d=20210526" type="text/css" rel="stylesheet">
   </head>
   <body>
     <section>
@@ -25,16 +25,34 @@
     <script>
 
       function init(){
+        movie_piles_data = {};
+        document.cookie.split(';').forEach(cookie => {
+          if(cookie.trim().startsWith("movie_piles_data=")){
+            movie_piles_data=JSON.parse(cookie.split("=")[1]);
+          }
+        });
+        //TODO this conversion can be deleted on later versions
+        // BEGIN CONVERSION
         movie_piles = [];
         document.cookie.split(';').forEach(cookie => {
-           if(cookie.trim().startsWith("movie_piles=")){
-             movie_piles=JSON.parse(cookie.split("=")[1]);
-           }
+          if(cookie.trim().startsWith("movie_piles=")){
+            movie_piles=JSON.parse(cookie.split("=")[1]);
+          }
         });
-        if(movie_piles.length > 0){
+        if(Array.isArray(movie_piles) && Object.entries(movie_piles_data).length === 0){
+          movie_piles.forEach(movie_pile => {
+            movie_piles_data[movie_pile] = {
+              name: "click me to retrieve title"
+            };
+          });
+        }
+        // kill old cookies after conversion
+        document.cookie = "movie_piles = [];expires=Do, 20 Mai 2021 23:59:59 GMT; path=/; secure";
+        // END CONVERSION
+        if(Object.entries(movie_piles_data).length > 0){
           html = '<h2> your piles</h2>';
-          movie_piles.forEach(movie_pile_url => {
-             html += '<p><a href="' + movie_pile_url + '">' + movie_pile_url + '</a></p>'
+          Object.keys(movie_piles_data).forEach(movie_pile_url => {
+             html += '<p><a href="' + movie_pile_url + '">' + movie_piles_data[movie_pile_url].name + '</a></p>'
           });
           document.getElementById("existing-movie-piles").innerHTML = html;
         }
