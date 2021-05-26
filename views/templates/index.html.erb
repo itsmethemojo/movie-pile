@@ -4,33 +4,26 @@
 
   <head>
   	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  	<title>Movie Pile <%= data['id'] %></title>
+  	<title>Start a Movie Pile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/auto.css?d=20210526" type="text/css" rel="stylesheet">
     <link href="/custom.css?d=20210526" type="text/css" rel="stylesheet">
   </head>
-
   <body>
-    <section class="navigation">
-      <a href="/create.html">create a new pile</a> | <a href="/swagger-ui/index.html" target="_blank">api</a>
+    <section>
+      <p>
+        This page lets you easily create and manage lists of movies.
+      </p>
     </section>
-    <section class="movies" id="movie-pile">
-      loading movies
+    <section>
+      <p>
+        <input type="button" value="Create pile" onclick="start()"/>
+      </p>
+    </section>
+    <section id="existing-movie-piles">
     </section>
     <script>
-      var request = new XMLHttpRequest();
-      request.open( "GET", "<%= data['api_url'] %>", false );
-      request.send( null );
-      var movies = JSON.parse(request.responseText);
-      var imagesHtml = "";
-      for (var i = 0; i < movies.length; i++) {
-        imagesHtml += '<a href="' +  movies[i].url + '"><img src="' +  movies[i].image + '" title="' +  movies[i].title + '" alt="Movie: ' +  movies[i].title + '"/></a>';
-      }
-      if(imagesHtml == ""){
-        imagesHtml = "no movies found";
-      }
-      document.getElementById("movie-pile").innerHTML = imagesHtml;
+<%= ERB.new(File.read('views/javascript/index.js'), nil, nil, '_sub01').result(binding) %>
     </script>
-
   </body>
-
 </html>
