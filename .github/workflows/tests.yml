@@ -12,6 +12,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: download task
+      run: |
+        wget https://taskfile.dev/install.sh
+        chmod +x install.sh
+        ./install.sh -b $(pwd)
     - name: Set up Ruby 2.7
       uses: actions/setup-ruby@v1
       with:
@@ -21,3 +26,7 @@ jobs:
         gem install bundler
         BUNDLE_GEMFILE=.dckrz/config/docker/testing/Gemfile bundle install --jobs 4 --retry 3
         .dckrz/scripts/audit.sh && .dckrz/scripts/checkstyle.sh && .dckrz/scripts/unittest.sh
+    - name: run js-lint
+      run: |
+        TASK_BINARY=$(pwd)/task $(pwd)/task dz:init
+        TASK_BINARY=$(pwd)/task $(pwd)/task lint-js
