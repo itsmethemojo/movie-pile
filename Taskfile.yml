@@ -297,6 +297,20 @@ tasks:
       - task: _script:stop_watch
         vars: {TASK_NAME: "fix-checkstyle"}
 
+  lint-js:
+    desc: task lint-js
+    deps:
+      - _init:check_if_init_needed
+    cmds:
+      - task: _script:start_watch
+        vars: {TASK_NAME: "lint-js"}
+      - task: _print_version
+        vars: {TASK_NAME: "lint-js"}
+      - task: _script:run
+        vars: {TASK_NAME: "lint-js"}
+      - task: _script:stop_watch
+        vars: {TASK_NAME: "lint-js"}
+
   package-update:
     desc: task package-update
     deps:
