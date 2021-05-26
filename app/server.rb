@@ -106,7 +106,7 @@ get '/share' do
     'id' => '',
     'api_url' =>  '/api/movie-pile?data=' + url_encoded_data
   }
-  erb :'templates/index.html',
+  erb :'templates/show.html',
       locals: { data: data }
 end
 
@@ -125,7 +125,7 @@ get '/:movie_pile_id' do
     'id' => params['movie_pile_id'],
     'api_url' =>  '/api/movie-pile/' + params['movie_pile_id']
   }
-  erb :'templates/index.html',
+  erb :'templates/show.html',
       locals: { data: data }
 end
 
@@ -134,7 +134,7 @@ get '/v2/:movie_pile_id' do
     'id' => params['movie_pile_id'],
     'api_url' =>  '/api/v2/movie-pile/' + params['movie_pile_id']
   }
-  erb :'templates/v2/index.html',
+  erb :'templates/v2/show.html',
       locals: { data: data }
 end
 
@@ -158,7 +158,8 @@ get '/swagger-ui/index.html' do
 end
 
 get '/' do
-  redirect '/index.html', 302
+  erb :'templates/index.html',
+      locals: {}
 end
 
 not_found do
