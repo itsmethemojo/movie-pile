@@ -13,7 +13,11 @@ function init() {
     html = '<h2> your piles</h2>';
     Object.keys(moviePileData).forEach(moviePileUrl => {
       html += '<p><a href="' +
-        moviePileUrl + '">' +
+        moviePileUrl +
+        '">edit</a> | ' +
+        '<a href="' +
+        moviePileUrl.split('/edit/')[0] +
+        '">' +
         moviePileData[moviePileUrl].name +
         '</a></p>';
     });

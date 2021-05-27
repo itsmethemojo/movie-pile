@@ -56,8 +56,18 @@ function initClipboardButton() {
   });
 }
 
+function initShowButton() {
+  var showButton = document.getElementById('show-button');
+  showButton.addEventListener('click', () => {
+    window.location.href = document.getElementById(
+      'movie-pile-share-url'
+    ).textContent;
+  });
+}
+
 function init() {
   initClipboardButton();
+  initShowButton();
   var request = new XMLHttpRequest();
   request.open('GET', '<%= data["api_url"] %>', false);
   request.send(null);
