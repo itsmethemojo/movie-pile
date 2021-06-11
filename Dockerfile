@@ -1,12 +1,12 @@
 FROM ruby:2.7
 
-RUN mkdir /app-container
+RUN mkdir /app
 
-COPY Gemfile* /app-container/
+COPY Gemfile* /app/
 
-RUN cd /app-container && \
+RUN cd /app && \
     bundle install
 
 COPY app/ config/ public/ src/ views/ /app-container/
 
-
+WORKDIR /app
