@@ -7,6 +7,6 @@ COPY Gemfile* /app/
 RUN cd /app && \
     bundle install
 
-COPY app/ config/ public/ src/ views/ /app-container/
+COPY app/ config/ public/ src/ views/ /app/
 
 WORKDIR /app
