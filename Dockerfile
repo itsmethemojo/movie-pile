@@ -7,4 +7,6 @@ COPY Gemfile* /app-container/
 RUN cd /app-container && \
     bundle install
 
-RUN cat /app-container/Gemfile.lock
+COPY app/ config/ public/ src/ views/ /app-container/
+
+
