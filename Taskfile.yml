@@ -311,6 +311,20 @@ tasks:
       - task: _script:stop_watch
         vars: {TASK_NAME: "lint-js"}
 
+  npm-security-update:
+    desc: task npm-security-update
+    deps:
+      - _init:check_if_init_needed
+    cmds:
+      - task: _script:start_watch
+        vars: {TASK_NAME: "npm-security-update"}
+      - task: _print_version
+        vars: {TASK_NAME: "npm-security-update"}
+      - task: _script:run
+        vars: {TASK_NAME: "npm-security-update"}
+      - task: _script:stop_watch
+        vars: {TASK_NAME: "npm-security-update"}
+
   package-update:
     desc: task package-update
     deps:
