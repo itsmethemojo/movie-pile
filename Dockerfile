@@ -1,10 +1,22 @@
-FROM ruby:2.7
+FROM ruby:2.7.6-slim
 
-RUN mkdir /app-container
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y libffi-dev gcc make libpq-dev curl
 
-COPY Gemfile* /app-container/
+COPY Gemfile* /app/
 
-RUN cd /app-container && \
+RUN cd /app && \
     bundle install
 
-RUN cat /app-container/Gemfile.lock
+COPY app /app/app
+
+COPY config /app/config
+
+COPY public /app/public
+
+COPY src /app/src
+
+COPY views /app/views
+
+WORKDIR /app
