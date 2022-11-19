@@ -26,7 +26,7 @@ jobs:
           echo "{\"auths\":{\"${{ env.REGISTRY }}\":{\"username\":\"${{ github.actor }}\",\"password\": \"${{ secrets.GITHUB_TOKEN }}\"}}}"  > /kaniko/.docker/config.json &&
           /kaniko/executor
           --context $(pwd)
-          --destination "${REGISTRY}/${IMAGE_NAME}:sha-${GITHUB_SHA}"
-          --destination "${REGISTRY}/${IMAGE_NAME}:sha-$(echo ${GITHUB_SHA} | cut -c -7)"
+          --destination "${REGISTRY}/${IMAGE_NAME}:arm64-sha-${GITHUB_SHA}"
+          --destination "${REGISTRY}/${IMAGE_NAME}:arm64-sha-$(echo ${GITHUB_SHA} | cut -c -7)"
 
-        # use same hash formats as standard docker build action 
+        # use similar hash formats as standard docker build action
