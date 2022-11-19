@@ -2,9 +2,9 @@ FROM ruby:2.7.6-slim
 
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install -y libffi-dev gcc make libpq-dev curl
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata libffi-dev gcc make libpq-dev curl
 
-COPY Gemfile* /app/
+COPY Gemfile Gemfile.lock /app/
 
 RUN cd /app && \
     bundle install
