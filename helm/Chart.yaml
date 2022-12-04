@@ -1,0 +1,10 @@
+apiVersion: v2
+name: movie-pile
+description: A Helm chart to run movie-pile in Kubernetes
+type: application
+version: 0.1.0
+dependencies:
+- name: basic-web-app
+  version: "1.0.1"
+  alias: app
+  repository: "https://itsmethemojo.github.io/helm-charts/"
