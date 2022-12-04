@@ -1,18 +1,18 @@
 development:
   adapter:  postgresql
-  database: postgres
-  username: postgres
-  password: localpw
-  host:     database
+  database: <%= ENV['DATABASE_NAME'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
+  password: <%= ENV['DATABASE_PASSWORD'] %>
+  host:     <%= ENV['DATABASE_HOST'] %>
   port:     5432
   encoding: unicode
 
 test:
   adapter:  postgresql
-  database: postgres
-  username: postgres
-  password: localpw
-  host:     database
+  database: <%= ENV['DATABASE_NAME'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
+  password: <%= ENV['DATABASE_PASSWORD'] %>
+  host:     <%= ENV['DATABASE_HOST'] %>
   port:     5432
   encoding: unicode
 

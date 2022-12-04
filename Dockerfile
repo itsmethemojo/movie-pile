@@ -19,4 +19,10 @@ COPY src /app/src
 
 COPY views /app/views
 
+COPY entrypoint.sh /
+
 WORKDIR /app
+
+ENV APP_ENVIRONMENT=production
+
+CMD ["/entrypoint.sh"]
