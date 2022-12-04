@@ -1,0 +1,14 @@
+app:
+  nameOverride: movie-pile
+
+  image:
+    repository: ghcr.io/itsmethemojo/movie-pile
+    tag: "sha-1a922e5"
+
+  containerPort: 3000
+
+  env: {}
+    # DATABASE_NAME: MY_DATABASE_NAME
+    # DATABASE_USERNAME: MY_DATABASE_USERNAME
+    # DATABASE_PASSWORD: MY_DATABASE_PASSWORD
+    # DATABASE_HOST: MY_DATABASE_HOST
