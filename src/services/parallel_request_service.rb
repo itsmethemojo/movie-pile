@@ -9,7 +9,7 @@ class ParallelRequestService
     return [] if filtered_urls.empty?
 
     requests = send_requests(filtered_urls)
-    get_responses(requests, expand)
+    get_responses(requests, expand: expand)
   end
 
   private
@@ -26,16 +26,12 @@ class ParallelRequestService
     requests
   end
 
-  def get_responses(requests, expand=false)
+  def get_responses(requests, expand: false)
     responses = []
     requests.each do |request|
       response_body = request.response.body
       response_body = '' if request.response.code != 200
-      response = if expand
-        [request.url, response_body]
-      else
-        response_body
-      end
+      response = expand ? [request.url, response_body] : response_body
       responses.push(response)
     end
     responses
