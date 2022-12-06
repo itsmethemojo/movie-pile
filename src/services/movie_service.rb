@@ -9,7 +9,8 @@ class MovieService
   REQUIRED_MOVIE_FIELDS = %w[image title url].freeze
 
   def initialize
-    @cache = FileCache.new("movies-cache", "/tmp/caches")
+    cache_path = ENV.fetch('CACHE_PATH', '/tmp/caches')
+    @cache = FileCache.new("movies-cache", cache_path)
   end
 
   def get_movies(movie_url_list)
