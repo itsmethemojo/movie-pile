@@ -8,3 +8,5 @@ gem 'nokogiri'
 gem 'typhoeus'
 gem 'sinatra-activerecord'
 gem 'pg'
+
+gem "filecache", "~> 1.0"

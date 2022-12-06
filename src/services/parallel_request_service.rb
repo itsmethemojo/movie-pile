@@ -4,10 +4,12 @@ require 'typhoeus'
 
 # service to run multiple parallel http requests
 class ParallelRequestService
-  def get(urls)
+  def get(urls, expand: false)
     filtered_urls = urls.reject(&:empty?)
-    requests = send_requests(filtered_urls) unless filtered_urls.empty?
-    get_responses(requests)
+    return [] if filtered_urls.empty?
+
+    requests = send_requests(filtered_urls)
+    get_responses(requests, expand)
   end
 
   private
@@ -24,12 +26,17 @@ class ParallelRequestService
     requests
   end
 
-  def get_responses(requests)
+  def get_responses(requests, expand=false)
     responses = []
     requests.each do |request|
       response_body = request.response.body
       response_body = '' if request.response.code != 200
-      responses.push(response_body)
+      response = if expand
+        [request.url, response_body]
+      else
+        response_body
+      end
+      responses.push(response)
     end
     responses
   end
