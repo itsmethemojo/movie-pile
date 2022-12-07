@@ -6,13 +6,13 @@
 
 {{ template "chart.description" . }}
 
+## installation
+
+```
+helm upgrade --install demo . --set postgresql.auth.password=super-secret-password --set app.env.DATABASE_PASSWORD=super-secret-password
+```
+
 {{ template "chart.homepageLine" . }}
-
-## update docs
-
-```
-docker run --rm -v $(pwd):/app -w/app jnorwood/helm-docs -t helm-docs-template.gotmpl
-```
 
 {{ template "chart.maintainersSection" . }}
 
@@ -21,5 +21,11 @@ docker run --rm -v $(pwd):/app -w/app jnorwood/helm-docs -t helm-docs-template.g
 {{ template "chart.requirementsSection" . }}
 
 {{ template "chart.valuesSection" . }}
+
+## update docs
+
+```
+docker run --rm -v $(pwd):/app -w/app jnorwood/helm-docs -t helm-docs-template.gotmpl
+```
 
 {{ template "helm-docs.versionFooter" . }}
