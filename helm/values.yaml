@@ -3,12 +3,35 @@ app:
 
   image:
     repository: ghcr.io/itsmethemojo/movie-pile
-    tag: "sha-1a922e5"
+    tag: "sha-43c466c"
 
   containerPort: 3000
 
-  env: {}
-    # DATABASE_NAME: MY_DATABASE_NAME
-    # DATABASE_USERNAME: MY_DATABASE_USERNAME
-    # DATABASE_PASSWORD: MY_DATABASE_PASSWORD
-    # DATABASE_HOST: MY_DATABASE_HOST
+  env:
+    DATABASE_HOST: movie-pile-database
+    DATABASE_NAME: movie-pile
+    DATABASE_USERNAME: movie-pile
+    CACHE_PATH: /cache
+
+  persistentVolumeClaims:
+  - name: cache
+    # -- mount a pvc for the cache directory
+    mountPath: /cache
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+
+postgresql:
+  # -- to use a separate deployed database set to false here
+  enabled: true
+  fullnameOverride: movie-pile-database
+  primary:
+    persistence:
+      # -- for production use persistence should be enabled
+      enabled: false
+  auth:
+    database: movie-pile
+    username: movie-pile
