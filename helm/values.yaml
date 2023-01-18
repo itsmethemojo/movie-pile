@@ -3,7 +3,7 @@ app:
 
   image:
     repository: ghcr.io/itsmethemojo/movie-pile
-    tag: "sha-43c466c"
+    tag: "sha-7db386d"
 
   containerPort: 3000
 
