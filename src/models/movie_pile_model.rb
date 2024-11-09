@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../services/movie_service.rb'
+require_relative '../services/movie_service'
 
 # model to retrieve movie information to show as movie pile
 class MoviePileModel
@@ -21,7 +21,7 @@ class MoviePileModel
   end
 
   def get_movie_url_list_from_pastebin(pastebin_id)
-    pastebin_url = 'https://pastebin.com/raw/' + pastebin_id
+    pastebin_url = "https://pastebin.com/raw/#{pastebin_id}"
     pastebin_raw_response = ParallelRequestService.new.get([pastebin_url]).first
     # TODO: use raise Sinatra::NotFound if pastebin is not found
     pastebin_raw_response.split(/[\r\n]/)
