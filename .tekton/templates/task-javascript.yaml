@@ -14,6 +14,8 @@ spec:
       image: "$(params.image)"
       script: |-
         #!/bin/sh
-        npm install && \
-        node_modules/jscs/bin/jscs ${source_dir}/views/javascript && \
-        node_modules/jshint/bin/jshint ${source_dir}/views/javascript
+        npm install --quiet && \
+        echo "[INFO] run jscs on views/javascript"  && \
+        node_modules/jscs/bin/jscs views/javascript && \
+        echo "[INFO] run jshint on views/javascript"  && \
+        node_modules/jshint/bin/jshint views/javascript

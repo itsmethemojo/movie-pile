@@ -8,6 +8,8 @@ require_relative '../src/errors/unauthorized_error'
 ActiveRecord::Base.establish_connection
 require_relative '../src/orm/movie_pile_table'
 MoviePileTable.migrate(:up)
+require_relative '../src/orm/movie_pile_table_index'
+MoviePileTableIndex.migrate(:up)
 
 set :root, File.absolute_path("#{__dir__}/..")
 settings_public = proc { File.join(root, 'public') }
