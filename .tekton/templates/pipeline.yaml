@@ -53,6 +53,8 @@ spec:
       params:
         - name: url
           value: $(params.repo-url)
+        - name: revision
+          value: $(params.revision)
     - name: lint-ruby
       runAfter: ["fetch-source"]
       taskRef:
