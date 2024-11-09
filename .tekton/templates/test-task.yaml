@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1 # or tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: movie-pile-test
+spec:
+  params:
+    - name: lint-image
+      type: string
+      description: ruby docker image to be used for linting with rubocop
+  workspaces:
+    - name: source
+  steps:
+    - name: test
+      workingDir: $(workspaces.source.path)
+      image: "$(params.lint-image)"
+      script: |-
+        #!/bin/sh
+        rubocop src app

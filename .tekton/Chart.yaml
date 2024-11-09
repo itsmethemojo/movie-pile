@@ -1,0 +1,5 @@
+apiVersion: v2
+name: tekton
+description: A Helm Chart packaging tekton pipelins resources for this project
+type: application
+version: 0.1.0
