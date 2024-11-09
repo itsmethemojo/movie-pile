@@ -1,0 +1,19 @@
+services:
+  ruby:
+    image: pipelinecomponents/rubocop
+    working_dir: /app-tmp
+    volumes:
+      - .:/app-tmp
+    command:
+      - rubocop
+      - app
+      - src
+  javascript:
+    image: node:14.14-stretch
+    working_dir: /app-tmp
+    volumes:
+      - .:/app-tmp
+    command:
+      - bash
+      - -c
+      - "npm install && node_modules/jscs/bin/jscs views/javascript && node_modules/jshint/bin/jshint views/javascript"

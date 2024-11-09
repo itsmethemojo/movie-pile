@@ -1,4 +1,2 @@
-! /.dckrz/
-/.dckrz/tmp/
-/.dckrz/config/docker/js/node_modules
 /helm/charts
+/node_modules

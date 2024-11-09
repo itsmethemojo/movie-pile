@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1 # or tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: movie-pile-lint-javascript
+spec:
+  params:
+    - name: image
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: test
+      workingDir: $(workspaces.source.path)
+      image: "$(params.image)"
+      script: |-
+        #!/bin/sh
+        npm install && \
+        node_modules/jscs/bin/jscs ${source_dir}/views/javascript && \
+        node_modules/jshint/bin/jshint ${source_dir}/views/javascript

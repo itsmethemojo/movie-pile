@@ -1,9 +1,9 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: movie-pile-test
+  name: movie-pile
 spec:
-  description: "movie-pile-test"
+  description: movie-pile
   params:
     - name: repo-url
       type: string
@@ -19,8 +19,12 @@ spec:
       default: tekton-test
     - name: tekton-url
       type: string
-    - name: lint-image
+    - name: lint-ruby-image
       type: string
+      default: pipelinecomponents/rubocop
+    - name: lint-javascript-image
+      type: string
+      default: node:14.14-stretch
   workspaces:
     - name: cloned_repo
   tasks:
@@ -49,20 +53,30 @@ spec:
       params:
         - name: url
           value: $(params.repo-url)
-    - name: test
+    - name: lint-ruby
       runAfter: ["fetch-source"]
       taskRef:
-        name: movie-pile-test
+        name: movie-pile-lint-ruby
       workspaces:
         - name: source
           workspace: cloned_repo
       params:
-        - name: lint-image
-          value: $(params.lint-image)
+        - name: image
+          value: $(params.lint-ruby-image)
+    - name: lint-javascript
+      runAfter: ["lint-ruby"]
+      taskRef:
+        name: movie-pile-lint-javascript
+      workspaces:
+        - name: source
+          workspace: cloned_repo
+      params:
+        - name: image
+          value: $(params.lint-javascript-image)
   finally:
     - name: set-failed-status
       when:
-        - input: $(tasks.test.status)
+        - input: $(tasks.status)
           operator: in
           values: ["Failed"]
         - input: $(params.enable-notifications)
@@ -74,11 +88,34 @@ spec:
         - name: SHA
           value: $(params.revision)
         - name: DESCRIPTION
-          value: "failed at test"
+          value: "a task failed"
         - name: CONTEXT
           value: $(params.status-context)
         - name: STATE
           value: failure
+        - name: TARGET_URL
+          value: $(params.tekton-url)
+      taskRef:
+        Name: github-set-status
+    - name: set-success-status
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values: ["Succeeded"]
+        - input: $(params.enable-notifications)
+          operator: in
+          values: ["true"]
+      params:
+        - name: REPO_FULL_NAME
+          value: $(params.repo-slug)
+        - name: SHA
+          value: $(params.revision)
+        - name: DESCRIPTION
+          value: "all tasks have succeeded"
+        - name: CONTEXT
+          value: $(params.status-context)
+        - name: STATE
+          value: success
         - name: TARGET_URL
           value: $(params.tekton-url)
       taskRef:
