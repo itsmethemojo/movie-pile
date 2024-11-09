@@ -1,0 +1,19 @@
+services:
+  ruby:
+    image: ruby:3.3.6-bookworm
+    working_dir: /app-tmp
+    volumes:
+      - .:/app-tmp
+    command:
+      - bash
+      - -c
+      - "bundle-audit check --update"
+  javascript:
+    image: node:14.14-stretch
+    working_dir: /app-tmp
+    volumes:
+      - .:/app-tmp
+    command:
+      - bash
+      - -c
+      - "npm install; npm audit; npm search jscs | head -2 | tail -1 && npm search jshint | head -2 | tail -1 && npm search uglify-js | head -2 | tail -1 && npm audit fix"

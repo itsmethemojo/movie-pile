@@ -1,8 +1,6 @@
-FROM ruby:2.7.6-slim
+FROM ruby:3.3.6-bookworm
 
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata libffi-dev gcc make libpq-dev curl
+RUN echo 2
 
 COPY Gemfile Gemfile.lock /app/
 
