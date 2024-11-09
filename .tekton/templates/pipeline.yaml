@@ -21,7 +21,7 @@ spec:
     - name: repo-slug
       default: itsmethemojo/movie-pile
     - name: status-context
-      default: tekton-test
+      default: test-and-publish
     - name: tekton-url
       type: string
     - name: lint-ruby-image
@@ -39,6 +39,8 @@ spec:
     - name: publish-tag-prefix
       type: string
       default: ""
+    - name: pipeline-mode
+      default: "default"
   workspaces:
     - name: source_code
     - name: docker_config
@@ -80,6 +82,10 @@ spec:
       params:
         - name: image
           value: $(params.lint-ruby-image)
+      when:
+        - input: $(params.pipeline-mode)
+          operator: in
+          values: ["only-pusblish-image"]
     - name: lint-javascript
       runAfter: ["lint-ruby"]
       taskRef:
@@ -90,6 +96,10 @@ spec:
       params:
         - name: image
           value: $(params.lint-javascript-image)
+      when:
+        - input: $(params.pipeline-mode)
+          operator: in
+          values: ["only-pusblish-image"]
     - name: kaniko-dryrun
       runAfter: ["lint-javascript"]
       taskRef:
@@ -103,7 +113,7 @@ spec:
         - name: BUILDER_IMAGE
           value: $(params.kaniko-image)
         - name: IMAGE
-          value: "$(params.publish-image):$(params.publish-tag-prefix)$(params.short-revision)"
+          value: "$(params.publish-image):$(params.publish-tag-prefix)sha-$(params.short-revision)"
         - name: EXTRA_ARGS
           value:
             - --no-push
@@ -124,7 +134,7 @@ spec:
         - name: BUILDER_IMAGE
           value: $(params.kaniko-image)
         - name: IMAGE
-          value: "$(params.publish-image):$(params.publish-tag-prefix)$(params.short-revision)"
+          value: "$(params.publish-image):$(params.publish-tag-prefix)sha-$(params.short-revision)"
       when:
         - input: $(params.branch)
           operator: in
@@ -157,7 +167,7 @@ spec:
       when:
         - input: $(tasks.status)
           operator: in
-          values: ["Succeeded"]
+          values: ["Completed"]
         - input: $(params.enable-notifications)
           operator: in
           values: ["true"]
