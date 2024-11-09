@@ -19,13 +19,14 @@ class HtmlService
     }
   }.freeze
 
-  DEFINITION_MISSING = 'missing search definition for required field'.freeze
+  DEFINITION_MISSING = 'missing search definition for required field'
 
   def extract_data(movie_website_html, required_fields)
     html_doc = Nokogiri::HTML(movie_website_html)
     movie = {}
     required_fields.each do |field|
       raise DEFINITION_MISSING unless SEARCH_DEFINITIONS.key?(field)
+
       movie[field] = extract_attribute_with_search_defintion(html_doc, field)
     end
     movie
@@ -43,7 +44,9 @@ class HtmlService
 
   def extract_attribute_from_html_element(html_doc, css_query, attribute_name)
     attribute_value = ''
+    # rubocop:disable Lint/UnreachableLoop
     html_doc.css(css_query).each do |element|
+      # rubocop:enable Lint/UnreachableLoop
       attribute_value = element[attribute_name]
       break
     end

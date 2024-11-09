@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'sinatra/activerecord'
-require_relative '../errors/unauthorized_error.rb'
-require_relative '../orm/movie_piles.rb'
-require_relative '../services/movie_service.rb'
+require_relative '../errors/unauthorized_error'
+require_relative '../orm/movie_piles'
+require_relative '../services/movie_service'
 
 # model to retrieve movie information to show as movie pile
 class MoviePileOrmModel
@@ -22,13 +22,16 @@ class MoviePileOrmModel
   def get(movie_pile_id)
     movie_pile = MoviePiles.find_by(pile_id: movie_pile_id)
     raise Sinatra::NotFound unless movie_pile
+
     get_response_object(movie_pile)
   end
 
   def edit(movie_pile_id, secret, data)
     raise UnauthorizedError if secret.nil? || (secret == '')
+
     movie_pile = MoviePiles.find_by(pile_id: movie_pile_id, secret: secret)
     raise UnauthorizedError unless movie_pile
+
     movie_pile.name = data[:name] if data[:name]
     movie_pile.movie_list = data[:movie_list] if data[:movie_list]
     movie_pile.save
@@ -42,7 +45,9 @@ class MoviePileOrmModel
     Array.new(length) { charset.sample }.join
   end
 
+  # rubocop:disable Style/OptionalBooleanParameter
   def get_response_object(movie_pile, include_secret = false)
+    # rubocop:enable Style/OptionalBooleanParameter
     # TODO: the JSON.parse can fail if there is not a valid json string in db
     response_object = {
       id: movie_pile.pile_id,

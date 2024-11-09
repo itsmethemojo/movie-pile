@@ -6,6 +6,7 @@ services:
       - .:/app-tmp
     command:
       - rubocop
+      - -a
       - app
       - src
   javascript:
