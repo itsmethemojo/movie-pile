@@ -9,8 +9,13 @@ spec:
       type: string
     - name: revision
       type: string
+    - name: short-revision
+      type: string
     - name: branch
       type: string
+    - name: default-branch
+      type: string
+      default: main
     - name: enable-notifications
       default: true
     - name: repo-slug
@@ -25,8 +30,18 @@ spec:
     - name: lint-javascript-image
       type: string
       default: node:14.14-stretch
+    - name: kaniko-image
+      type: string
+      default: gcr.io/kaniko-project/executor:v1.23.2
+    - name: publish-image
+      type: string
+      default: ghcr.io/itsmethemojo/movie-pile
+    - name: publish-tag-prefix
+      type: string
+      default: ""
   workspaces:
-    - name: cloned_repo
+    - name: source_code
+    - name: docker_config
   tasks:
     - name: set-pending-status
       params:
@@ -49,7 +64,7 @@ spec:
         name: git-clone
       workspaces:
         - name: output
-          workspace: cloned_repo
+          workspace: source_code
       params:
         - name: url
           value: $(params.repo-url)
@@ -61,7 +76,7 @@ spec:
         name: movie-pile-lint-ruby
       workspaces:
         - name: source
-          workspace: cloned_repo
+          workspace: source_code
       params:
         - name: image
           value: $(params.lint-ruby-image)
@@ -71,10 +86,49 @@ spec:
         name: movie-pile-lint-javascript
       workspaces:
         - name: source
-          workspace: cloned_repo
+          workspace: source_code
       params:
         - name: image
           value: $(params.lint-javascript-image)
+    - name: kaniko-dryrun
+      runAfter: ["lint-javascript"]
+      taskRef:
+        name: kaniko
+      workspaces:
+        - name: source
+          workspace: source_code
+        - name: dockerconfig
+          workspace: docker_config
+      params:
+        - name: BUILDER_IMAGE
+          value: $(params.kaniko-image)
+        - name: IMAGE
+          value: "$(params.publish-image):$(params.publish-tag-prefix)$(params.short-revision)"
+        - name: EXTRA_ARGS
+          value:
+            - --no-push
+      when:
+        - input: $(params.branch)
+          operator: notin
+          values: ["$(params.default-branch)"]
+    - name: kaniko
+      runAfter: ["lint-javascript"]
+      taskRef:
+        name: kaniko
+      workspaces:
+        - name: source
+          workspace: source_code
+        - name: dockerconfig
+          workspace: docker_config
+      params:
+        - name: BUILDER_IMAGE
+          value: $(params.kaniko-image)
+        - name: IMAGE
+          value: "$(params.publish-image):$(params.publish-tag-prefix)$(params.short-revision)"
+      when:
+        - input: $(params.branch)
+          operator: in
+          values: ["$(params.default-branch)"]
   finally:
     - name: set-failed-status
       when:
