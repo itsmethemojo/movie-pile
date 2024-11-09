@@ -84,7 +84,7 @@ spec:
           value: $(params.lint-ruby-image)
       when:
         - input: $(params.pipeline-mode)
-          operator: in
+          operator: notin
           values: ["only-pusblish-image"]
     - name: lint-javascript
       runAfter: ["lint-ruby"]
@@ -98,7 +98,7 @@ spec:
           value: $(params.lint-javascript-image)
       when:
         - input: $(params.pipeline-mode)
-          operator: in
+          operator: notin
           values: ["only-pusblish-image"]
     - name: kaniko-dryrun
       runAfter: ["lint-javascript"]
