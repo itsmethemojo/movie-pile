@@ -1,0 +1,85 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: movie-pile-test
+spec:
+  description: "movie-pile-test"
+  params:
+    - name: repo-url
+      type: string
+    - name: revision
+      type: string
+    - name: branch
+      type: string
+    - name: enable-notifications
+      default: true
+    - name: repo-slug
+      default: itsmethemojo/movie-pile
+    - name: status-context
+      default: tekton-test
+    - name: tekton-url
+      type: string
+    - name: lint-image
+      type: string
+  workspaces:
+    - name: cloned_repo
+  tasks:
+    - name: set-pending-status
+      params:
+        - name: REPO_FULL_NAME
+          value: $(params.repo-slug)
+        - name: SHA
+          value: $(params.revision)
+        - name: DESCRIPTION
+          value: "test pipeline started"
+        - name: CONTEXT
+          value: $(params.status-context)
+        - name: STATE
+          value: pending
+        - name: TARGET_URL
+          value: $(params.tekton-url)
+      taskRef:
+        Name: github-set-status
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: cloned_repo
+      params:
+        - name: url
+          value: $(params.repo-url)
+    - name: test
+      runAfter: ["fetch-source"]
+      taskRef:
+        name: movie-pile-test
+      workspaces:
+        - name: source
+          workspace: cloned_repo
+      params:
+        - name: lint-image
+          value: $(params.lint-image)
+  finally:
+    - name: set-failed-status
+      when:
+        - input: $(tasks.test.status)
+          operator: in
+          values: ["Failed"]
+        - input: $(params.enable-notifications)
+          operator: in
+          values: ["true"]
+      params:
+        - name: REPO_FULL_NAME
+          value: $(params.repo-slug)
+        - name: SHA
+          value: $(params.revision)
+        - name: DESCRIPTION
+          value: "failed at test"
+        - name: CONTEXT
+          value: $(params.status-context)
+        - name: STATE
+          value: failure
+        - name: TARGET_URL
+          value: $(params.tekton-url)
+      taskRef:
+        Name: github-set-status
