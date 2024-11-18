@@ -39,16 +39,20 @@ GEM
     mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
     mutex_m (0.2.0)
+    nio4r (2.7.4)
     nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
     pg (1.5.9)
+    puma (6.4.3)
+      nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.1.8)
-    rack-protection (4.0.0)
+    rack-protection (4.1.0)
       base64 (>= 0.1.0)
+      logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
     rack-session (2.0.0)
       rack (>= 3.0.0)
@@ -56,10 +60,11 @@ GEM
       rack (>= 3)
     ruby2_keywords (0.0.5)
     securerandom (0.3.1)
-    sinatra (4.0.0)
+    sinatra (4.1.0)
+      logger (>= 1.6.0)
       mustermann (~> 3.0)
       rack (>= 3.0.0, < 4)
-      rack-protection (= 4.0.0)
+      rack-protection (= 4.1.0)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
     sinatra-activerecord (2.0.27)
@@ -80,6 +85,7 @@ DEPENDENCIES
   filecache
   nokogiri
   pg
+  puma
   rackup
   sinatra
   sinatra-activerecord
