@@ -7,15 +7,18 @@ class HtmlService
   SEARCH_DEFINITIONS = {
     'image' => {
       'css_query' => 'meta[property="og:image"]',
-      'attribute_name' => 'content'
+      'attribute_name' => 'content',
+      'default' => '/empty.svg'
     },
     'title' => {
       'css_query' => 'meta[property="og:title"]',
-      'attribute_name' => 'content'
+      'attribute_name' => 'content',
+      'default' => 'Unknown'
     },
     'url' => {
       'css_query' => 'link[rel="canonical"]',
-      'attribute_name' => 'href'
+      'attribute_name' => 'href',
+      'default' => ''
     }
   }.freeze
 
@@ -28,6 +31,7 @@ class HtmlService
       raise DEFINITION_MISSING unless SEARCH_DEFINITIONS.key?(field)
 
       movie[field] = extract_attribute_with_search_defintion(html_doc, field)
+      movie[field] = SEARCH_DEFINITIONS[field]['default'] if movie[field] == ""
     end
     movie
   end

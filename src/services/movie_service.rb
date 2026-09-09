@@ -47,7 +47,8 @@ class MovieService
       movie = @html_service.extract_data(
         website_html, REQUIRED_MOVIE_FIELDS
       )
-      loaded_movies[url] = movie if valid_movie?(movie)
+      movie['url'] = url if movie['url'] == ""
+      loaded_movies[url] = movie
     end
     loaded_movies
   end
@@ -58,10 +59,4 @@ class MovieService
     end
   end
 
-  def valid_movie?(movie)
-    REQUIRED_MOVIE_FIELDS.each do |field|
-      return false if movie[field] == ''
-    end
-    true
-  end
 end
