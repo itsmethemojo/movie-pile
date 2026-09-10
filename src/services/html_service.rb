@@ -31,7 +31,7 @@ class HtmlService
       raise DEFINITION_MISSING unless SEARCH_DEFINITIONS.key?(field)
 
       movie[field] = extract_attribute_with_search_defintion(html_doc, field)
-      movie[field] = SEARCH_DEFINITIONS[field]['default'] if movie[field] == ""
+      movie[field] = SEARCH_DEFINITIONS[field]['default'] if movie[field] == ''
     end
     movie
   end
