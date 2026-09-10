@@ -13,6 +13,7 @@ services:
       DATABASE_PASSWORD: localpw
       DATABASE_HOST: database
       CACHE_PATH: /tmp/caches
+      URL_TO_PROXY_LIST: www.imdb.com|prx.imdb.com
     ports:
       - "3000:3000"
     links:

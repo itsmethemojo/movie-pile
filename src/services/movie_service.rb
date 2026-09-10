@@ -42,12 +42,12 @@ class MovieService
 
   def movies_from_url(movie_url_list)
     loaded_movies = {}
-    @request_service.get(movie_url_list, expand: true).each do |response|
+    @request_service.get(movie_url_list).each do |response|
       url, website_html = response
       movie = @html_service.extract_data(
         website_html, REQUIRED_MOVIE_FIELDS
       )
-      movie['url'] = url if movie['url'] == ""
+      movie['url'] = url if movie['url'] == ''
       loaded_movies[url] = movie
     end
     loaded_movies
@@ -58,5 +58,4 @@ class MovieService
       @cache.set(url, movie)
     end
   end
-
 end
