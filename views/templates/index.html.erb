@@ -23,7 +23,7 @@
     <section id="existing-movie-piles">
     </section>
     <script>
-<%= ERB.new(File.read('views/javascript/index.js'), nil, nil, '_sub01').result(binding) %>
+<%= ERB.new(File.read('views/javascript/index.js'), eoutvar: '_sub01').result(binding) %>
     </script>
   </body>
 </html>

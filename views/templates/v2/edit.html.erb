@@ -58,7 +58,7 @@
       </p>
     </section>
     <script>
-<%= ERB.new(File.read('views/javascript/v2/edit.js'), nil, nil, '_sub01').result(binding) %>
+<%= ERB.new(File.read('views/javascript/v2/edit.js'), eoutvar: '_sub01').result(binding) %>
     </script>
   </body>
 </html>
