@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'logger'
 require 'sinatra'
 require 'sinatra/activerecord'
 require_relative '../src/errors/unauthorized_error'
@@ -24,7 +25,11 @@ set :api_data,
     'title' => 'Movie Pile',
     'version' => '1.0.0'
 
+# TODO: add debug mode via ENV and add condition here
+ActiveRecord::Base.logger = nil
+
 before do
+  logger.level = Logger::WARN
   request.body.rewind
   @request_payload = JSON.parse(request.body.read, symbolize_names: true)
 rescue JSON::ParserError
@@ -177,6 +182,7 @@ error do
   )
 end
 
-after do
-  puts body
-end
+# TODO: add debug mode via ENV
+# after do
+#  puts body
+# end

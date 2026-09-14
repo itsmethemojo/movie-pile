@@ -31,11 +31,13 @@ class ParallelRequestService
 
   def get_responses(requests)
     responses = []
-    logger = Logger.new(STDOUT)
+    logger = Logger.new($stdout)
     requests.each do |request|
       response_body = request.response.body
-      response_body = '' if request.response.code != 200
-      logger.error('unexpected response code ' + request.response.code.to_s + ' for url ' + request.url)
+      if request.response.code != 200
+        response_body = ''
+        logger.error("unexpected response code #{request.response.code} for url #{request.url}")
+      end
       return_url = get_url_for_proxy(request.url)
       response = [return_url, response_body]
       responses.push(response)
@@ -63,13 +65,15 @@ class ParallelRequestService
     url.gsub(domain, map[domain])
   end
 
+  # rubocop:disable Style/OptionalBooleanParameter
   def get_proxy_to_url_map(reverse = false)
+    # rubocop:enable Style/OptionalBooleanParameter
     mapping_list = ENV.fetch('URL_TO_PROXY_LIST', '')
     return {} if mapping_list == ''
 
-    entries = mapping_list.split(' ')
+    entries = mapping_list.split
     return_map = {}
-    for entry in entries do
+    entries.each do |entry|
       key_value_split = entry.split('|')
       continue unless key_value_split.length == 2
       key = key_value_split[0]
