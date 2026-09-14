@@ -60,7 +60,7 @@ spec:
         - name: TARGET_URL
           value: $(params.tekton-url)
       taskRef:
-        Name: github-set-status
+        name: github-set-status
     - name: fetch-source
       taskRef:
         name: git-clone
@@ -162,7 +162,7 @@ spec:
         - name: TARGET_URL
           value: $(params.tekton-url)
       taskRef:
-        Name: github-set-status
+        name: github-set-status
     - name: set-success-status
       when:
         - input: $(tasks.status)
@@ -185,4 +185,4 @@ spec:
         - name: TARGET_URL
           value: $(params.tekton-url)
       taskRef:
-        Name: github-set-status
+        name: github-set-status
