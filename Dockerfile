@@ -1,6 +1,4 @@
-FROM ruby:3.3.6-bookworm
-
-RUN echo 2
+FROM 192.168.1.101:30006/library/ruby:3.3.6-bookworm
 
 COPY Gemfile Gemfile.lock /app/
 
