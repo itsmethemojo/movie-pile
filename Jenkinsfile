@@ -69,9 +69,9 @@ pipeline {
       steps {
         container('kaniko') {
           sh 'mkdir -p ~/.docker'
-          sh 'if [ \"$GIT_BRANCH\" == \"$DEFAULT_BRANCH\" ]; then echo "" > ~/.docker/push; else echo \"--no-push\" > ~/.docker/push; fi'
-          sh 'echo \"{\\"auths\\":{\\"$CONTAINER_IMAGE_REGISTRY\\":{\\"username\\":\\"$GITHUB_CREDS_USR\\",\\"password\\":\\"$GITHUB_CREDS_PSW\\"}}}\" > ~/.docker/config.json'
-          sh '/kaniko/executor --dockerfile Dockerfile --context . --build-arg PULLTROUGH_REGISTRY_PREFIX=192.168.1.101:30006/library/ --destination $CONTAINER_IMAGE_REGISTRY/$CONTAINER_IMAGE_PATH:amd64-$SHORT_COMMIT $(cat ~/.docker/push | xargs)'
+          sh 'if [ \"$GIT_BRANCH\" == \"$DEFAULT_BRANCH\" ]; then echo "" > /kaniko/.docker/push; else echo \"--no-push\" > /kaniko/.docker/push; fi'
+          sh 'echo \"{\\"auths\\":{\\"$CONTAINER_IMAGE_REGISTRY\\":{\\"username\\":\\"$GITHUB_CREDS_USR\\",\\"password\\":\\"$GITHUB_CREDS_PSW\\"}}}\" > /kaniko/.docker/config.json'
+          sh '/kaniko/executor --dockerfile Dockerfile --context . --build-arg PULLTROUGH_REGISTRY_PREFIX=192.168.1.101:30006/library/ --destination $CONTAINER_IMAGE_REGISTRY/$CONTAINER_IMAGE_PATH:amd64-$SHORT_COMMIT $(cat /kaniko/.docker/push | xargs)'
         }
       }
     }
