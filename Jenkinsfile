@@ -25,17 +25,17 @@ pipeline {
         spec:
           containers:
           - name: rubocop
-            image: pipelinecomponents/rubocop:latest
+            image: 192.168.1.101:30006/pipelinecomponents/rubocop:latest
             command:
             - cat
             tty: true
           - name: javascript
-            image: node:14.14-stretch
+            image: 192.168.1.101:30006/library/node:14.14-stretch
             command:
             - cat
             tty: true
           - name: buildkit
-            image: moby/buildkit:rootless
+            image: 192.168.1.101:30006/moby/buildkit:rootless
             command:
             - cat
             tty: true
