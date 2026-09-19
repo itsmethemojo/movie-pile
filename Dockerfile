@@ -1,4 +1,6 @@
-FROM 192.168.1.101:30006/library/ruby:3.3.6-bookworm
+ARG PULLTROUGH_REGISTRY_PREFIX=""
+
+FROM ${PULLTROUGH_REGISTRY_PREFIX}ruby:3.3.6-bookworm
 
 COPY Gemfile Gemfile.lock /app/
 

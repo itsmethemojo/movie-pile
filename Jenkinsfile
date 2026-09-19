@@ -13,7 +13,6 @@ pipeline {
     GITHUB_CREDS = credentials('github-creds')
     CONTAINER_IMAGE_REGISTRY = "ghcr.io"
     CONTAINER_IMAGE_PATH = "itsmethemojo/movie-pile"
-    BUILDKITD_FLAGS = "--oci-worker-no-process-sandbox"
     SHORT_COMMIT = "${GIT_COMMIT[0..7]}"
     DEFAULT_BRANCH = "main"
   }
@@ -34,8 +33,8 @@ pipeline {
             command:
             - cat
             tty: true
-          - name: buildkit
-            image: 192.168.1.101:30006/moby/buildkit:rootless
+          - name: kaniko
+            image: ghcr.io/osscontainertools/kaniko:v1.28.4-alpine
             command:
             - cat
             tty: true
@@ -68,11 +67,11 @@ pipeline {
 
     stage('build') {
       steps {
-        container('buildkit') {
+        container('kaniko') {
           sh 'mkdir -p ~/.docker'
-          sh 'if [ \"$GIT_BRANCH\" == \"$DEFAULT_BRANCH\" ]; then echo true > ~/.docker/push; else echo false > ~/.docker/push; fi'
+          sh 'if [ \"$GIT_BRANCH\" == \"$DEFAULT_BRANCH\" ]; then echo "" > ~/.docker/push; else echo \"--no-push\" > ~/.docker/push; fi'
           sh 'echo \"{\\"auths\\":{\\"$CONTAINER_IMAGE_REGISTRY\\":{\\"username\\":\\"$GITHUB_CREDS_USR\\",\\"password\\":\\"$GITHUB_CREDS_PSW\\"}}}\" > ~/.docker/config.json'
-          sh 'buildctl-daemonless.sh build --frontend dockerfile.v0 --local context=. --local dockerfile=. --output type=image,name=$CONTAINER_IMAGE_REGISTRY/$CONTAINER_IMAGE_PATH:amd64-$SHORT_COMMIT,push=$(cat ~/.docker/push | xargs)'
+          sh '/kaniko/executor --dockerfile Dockerfile --context . --build-arg PULLTROUGH_REGISTRY_PREFIX=192.168.1.101:30006/library/ --destination $CONTAINER_IMAGE_REGISTRY/$CONTAINER_IMAGE_PATH:amd64-$SHORT_COMMIT $(cat ~/.docker/push | xargs)'
         }
       }
     }
