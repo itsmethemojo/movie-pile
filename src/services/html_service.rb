@@ -14,11 +14,6 @@ class HtmlService
       'css_query' => 'meta[property="og:title"]',
       'attribute_name' => 'content',
       'default' => 'Unknown'
-    },
-    'url' => {
-      'css_query' => 'link[rel="canonical"]',
-      'attribute_name' => 'href',
-      'default' => ''
     }
   }.freeze
 

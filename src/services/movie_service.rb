@@ -7,7 +7,7 @@ require_relative '../services/html_service'
 
 # service to extract movie data from movie urls
 class MovieService
-  REQUIRED_MOVIE_FIELDS = %w[image title url].freeze
+  REQUIRED_MOVIE_FIELDS = %w[image title].freeze
 
   def initialize
     cache_path = ENV.fetch('CACHE_PATH', '/tmp/caches')
@@ -47,7 +47,7 @@ class MovieService
       movie = @html_service.extract_data(
         website_html, REQUIRED_MOVIE_FIELDS
       )
-      movie['url'] = url if movie['url'] == ''
+      movie['url'] = url
       loaded_movies[url] = movie
     end
     loaded_movies
